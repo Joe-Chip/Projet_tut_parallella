@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h> // pour isnan (=> Double.isNaN) et isinf (=> Double.isInfinite)
+#include <unistd.h>
 #include "calcul.h"
 #include "balayageK2_Interface.h"
 #include "e-hal.h" // Bibliotheque hote pour Epiphany
@@ -36,14 +37,26 @@ int open_Epiphany () {
     // Recuperer les infos de la plateforme
     e_get_platform_info(&eplat);
 
+    e_alloc(&emem, 0x0, 32768);// buff de 32ko
+
     // Ouverture du workgroup
     e_open(&edev, 32, 8, 4, 4);
+
+    int qd = 42;
+
+    e_write(&emem, 0, 0, 0x0, &qd, sizeof(qd));
 
     // Lancement du travail sur les coeurs
     if (E_OK != e_load_group("C/e_calcul.srec", &edev, 0, 0, 4, 4, E_TRUE)) {
         fprintf(stderr, "Erreur chargement sur les coeurs\n");
         return EXIT_FAILURE;
     }
+
+    printf("On a lancé Épiphany !!!\n");
+    sleep(10);
+    
+    e_read(&emem, 0, 0, 0x0, &qd, sizeof(qd));
+    printf("qd = %d\n", qd);
 
     // Fermeture du workgroup
     e_close(&edev);
@@ -422,7 +435,7 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
                                (long long) ctrCalculs               //possiblement inutile
                               );
   
-    calcul.calcul(&calcul);
+    //calcul.calcul(&calcul);
     
     jclass clsvec = (*env)->FindClass(env,"java/util/Vector");
 
@@ -434,7 +447,7 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
     
     printf("size = %d\n", (*env)->CallIntMethod(env, j_lstPtsX, jsize));
     
-    int i;
+    int i;/*
     for (i = 0 ; i < 84100 ; i++) {
         jobject unPtX = NewDouble(env,(jdouble) lstPtsX[i]);
         (*env)->CallObjectMethod(env, j_lstPtsX, jadd, unPtX);
@@ -449,13 +462,14 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
         jobject unPtC = NewInteger(env,(jdouble) lstPtsC[i]);
         (*env)->CallObjectMethod(env, j_lstPtsC, jadd, unPtC);
     }
-   
+   */
     // Test call epiphany
     open_Epiphany();
  
   
   // On libère les données java
   printf("Délivréééééé, libérééééééééééé\n");
+  printf("EXIT_SUCESS= %d\n", EXIT_SUCCESS); 
   (*env)->ReleaseDoubleArrayElements(env, valInit,valInitC, JNI_ABORT);
 
   // Nettoyage
