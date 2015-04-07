@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE Article [
+<!ENTITY annéeCourante "2009-2010">
+]>
+
+
+<?xml-stylesheet  type="text/xml" href="/BASE/XSL/convertPostTraitement.xsl"?>
+
+  <Article xmlns:xi="http://www.w3.org/2001/XInclude"><ListeDefAutorisation><autorisation id="privé"><ou/></autorisation></ListeDefAutorisation>
+  <titre>cascade2D.Quadratique2D</titre>
+
+    <tête>
+      <css direct="oui">
+div.zoneTitreCentréeSimple {
+  font-size: xx-large; font-family: times;
+  font-weight: bold;
+  text-align: center;
+  margin: 0; padding-top: 1em; padding-bottom: 1em; 
+  color: blue;
+} 
+      </css>
+    </tête>
+
+  <p>Fonction :
+<code langage="java" acolorier="oui" couleurfond="#e7e3e7">
+
+ foo(i,j) = foo(i-1, j-1) ** 2 + b * foo(i, j-1) + a
+ou
+ foo(i,j) = foo(i-1, j-1) ** 2 + a * foo(i, j-1) + b</code>
+  </p>
+<!--  
+  <code langage="java" acolorier="oui" couleurfond="&gris-code;">
+    <insérer src="../balayageK2/fonctions/Myrberg.java" début="debfoo" fin="finfoo"/>
+  </code>
+-->
+</Article>

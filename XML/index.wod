@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet  type="text/xml" href="/BASE/XSL/convertPostTraitement.xsl"?>
+
+  <Article xmlns:xi="http://www.w3.org/2001/XInclude"><ListeDefAutorisation><autorisation id="privé"><ou/></autorisation></ListeDefAutorisation>
+  <titre>Visualisation Balayage</titre>
+  
+  <p>Liste des Programmes
+   <liste><item>Compteur de Cycles H et V (paramétrique)
+     <liste>
+      <item><url href="calcul:balayageK2.fonctions.compteurCyclesParametriques.BalayageK2">Balayage Quadratique</url></item>
+      <item><url href="calcul:balayageK2.fonctions.compteurCyclesParametriques.Cubique2D">Cubique 2d</url></item>
+      <item><url href="calcul:balayageK2.fonctions.compteurCyclesParametriques.Myrberg">Récurrence Myrberg</url></item>
+      <item><url href="calcul:balayageK2.fonctions.compteurCyclesParametriques.LatticeMap">Lattice Map</url></item>
+     </liste>
+     </item><item>Plan paramétrique
+     <liste>
+      <item><url href="calcul:balayageK2.fonctions.parametriques.BalayageK2">Balayage Quadratique</url></item>
+      <item><url href="calcul:balayageK2.fonctions.parametriques.Cubique2D">Cubique 2d</url></item>
+      <item><url href="calcul:balayageK2.fonctions.parametriques.Myrberg">Récurrence Myrberg</url></item>
+      <item><url href="calcul:balayageK2.fonctions.parametriques.LatticeMap">Lattice Map</url></item>
+      <item><url href="calcul:balayageK2.fonctions.parametriques.UniModalMap">UniModal Map</url></item>
+    </liste>
+    </item><item>Plan de phase
+     <liste>
+      <item>Cascade 2D
+<liste>
+      <item><url href="calcul:balayageK2.fonctions.cascade2D.Quadratique2D">Cas Quadratique</url></item>
+      <item><url href="calcul:balayageK2.fonctions.cascade2D.Cubique2D">Cas Cubique</url></item>
+      <item><url href="calcul:balayageK2.fonctions.cascade2D.Myrberg2D">Cas de Myrberg</url></item>
+      <item><url href="calcul:balayageK2.fonctions.cascade2D.LatticeMap">Lattice Map</url></item>
+      <item><url href="calcul:balayageK2.fonctions.cascade2D.UniModalMap">UniModal Map</url></item>
+     </liste>
+
+
+
+
+
+</item>      <item>Cascade 3D
+<liste>
+      <item><url href="calcul:balayageK2.fonctions.cascade3D.Quadratique3D">Cas Quadratique</url></item>
+      <item><url href="calcul:balayageK2.fonctions.cascade3D.Cubique3D">Cas Cubique</url></item>
+      <item><url href="calcul:balayageK2.fonctions.cascade3D.Myrberg3D">Cas de Myrberg</url></item>
+     </liste>
+
+
+
+
+
+</item>
+     </liste>
+    </item><item>Autre
+     <liste>
+      <item><url href="calcul:balayageK2.fonctions.AncienMyrberg">Ancien Myrberg</url></item>
+     </liste>
+</item>
+   </liste>
+</p>
+<p>On peut également visualiser des données sauvegardé en <url href="restaure:">cliquant ici</url>.
+</p>
+   
+</Article>

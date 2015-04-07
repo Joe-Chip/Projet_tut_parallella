@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<reseau>
+ <serveur machine="localhost"
+  exec="java -cp /home/castan/WWW/Recherche/ObjMateriel/BalayageK2/Jar/BalayageK2.jar balayageK2/rmi/ServeurCalculImpl"/>
+ <serveur machine="ragtime"
+  exec="java -cp /home/castan/WWW/Recherche/ObjMateriel/BalayageK2/Jar/BalayageK2.jar balayageK2/rmi/ServeurCalculImpl"/>
+ <serveur machine="localhost"
+  exec="java -cp /home/castan/WWW/Recherche/ObjMateriel/BalayageK2/Jar/BalayageK2.jar balayageK2/rmi/ServeurCalculImpl"/>
+ <serveur machine="ragtime"
+  exec="java -cp /home/castan/WWW/Recherche/ObjMateriel/BalayageK2/Jar/BalayageK2.jar balayageK2/rmi/ServeurCalculImpl"/>
+</reseau>

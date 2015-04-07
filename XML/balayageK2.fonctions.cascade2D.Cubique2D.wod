@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Article>
+  <titre>cascade2D.Cubique2D</titre>
+
+    <tête>
+      <css direct="oui">
+div.zoneTitreCentréeSimple {
+  font-size: xx-large; font-family: times;
+  font-weight: bold;
+  text-align: center;
+  margin: 0; padding-top: 1em; padding-bottom: 1em; 
+  color: blue;
+} 
+      </css>
+    </tête>
+
+  <p>Fonction :
+<code langage="java" acolorier="oui" couleurfond="#e7e3e7">
+
+ foo(i,j) = foo(i-1, j-1) ** 3 + b * foo(i, j-1) + a
+ou
+ foo(i,j) = foo(i-1, j-1) ** 3 + a * foo(i, j-1) + b</code>
+  </p>
+</Article>

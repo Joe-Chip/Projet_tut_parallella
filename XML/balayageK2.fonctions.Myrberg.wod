@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE Article [
+<!ENTITY annéeCourante "2009-2010">
+]>
+
+
+<?xml-stylesheet  type="text/xml" href="/BASE/XSL/convertPostTraitement.xsl"?>
+
+  <Article xmlns:xi="http://www.w3.org/2001/XInclude"><ListeDefAutorisation><autorisation id="privé"><ou/></autorisation></ListeDefAutorisation>
+  <titre>Myrberg</titre>
+
+    <tête>
+      <css direct="oui">
+div.zoneTitreCentréeSimple {
+  font-size: xx-large; font-family: times;
+  font-weight: bold;
+  text-align: center;
+  margin: 0; padding-top: 1em; padding-bottom: 1em; 
+  color: blue;
+} 
+      </css>
+    </tête>
+
+  
+  <p>La fonction Myrberg utilise le calcul suivant :
+  
+  <code langage="java" acolorier="oui" couleurfond="">
+    <insérer début="debfoo" fin="finfoo" href="../balayageK2/fonctions/Myrberg.java"/>
+  </code>
+  </p>
+   
+</Article>

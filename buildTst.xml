@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse.ant.import?>
+<project>
+<target name="tst">
+	<java classname="lilas.util.AllTestsSimu" fork="true">
+       <classpath refid="BalayageK2.classpath"/>
+       <arg value="circuit/tstModProdElem.lilas"/>
+	   <arg value="circuit"/>
+	</java>
+</target>
+</project>

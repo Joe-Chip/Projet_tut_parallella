@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<reseau>
+ <serveur machine="localhost" nbrThread="1"
+  exec="java -cp /home/castan/WWW/Recherche/ObjMateriel/BalayageK2/eclipse balayageK2/rmi/ServeurCalculImpl"/>
+  	  	 <!--serveur machine="gei-01285" nbrThread="4"
+  exec="java -cp /home/castan/WWW/Recherche/ObjMateriel/BalayageK2/eclipse balayageK2/rmi/ServeurCalculImpl"/-->
+</reseau>

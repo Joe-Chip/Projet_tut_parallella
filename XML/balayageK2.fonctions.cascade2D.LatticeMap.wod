@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+  <Article>
+    <titre>cascade2D.LatticeMap</titre>
+    <tête>
+      <css direct="oui">
+div.zoneTitreCentréeSimple {
+  font-size: xx-large; font-family: times;
+  font-weight: bold;
+  text-align: center;
+  margin: 0; padding-top: 1em; padding-bottom: 1em; 
+  color: blue;
+} 
+      </css>
+    </tête>
+  <p>Fonction :
+<code langage="java" acolorier="oui" couleurfond="#e7e3e7">
+
+ foo(i,j) = a * ((1.0-b) * foo(i, j-1) * (1.0 - foo(i, j-1)) + b * foo(i-1, j-1) * (1.0 - foo(i-1, j-1)))
+ou
+ foo(i,j) = b * ((1.0-a) * foo(i, j-1) * (1.0 - foo(i, j-1)) + a * foo(i-1, j-1) * (1.0 - foo(i-1, j-1)))</code>
+  </p>
+<!--  
+  <code langage="java" acolorier="oui" couleurfond="&gris-code;">
+    <insérer src="../balayageK2/fonctions/Myrberg.java" début="debfoo" fin="finfoo"/>
+  </code>
+-->
+</Article>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse.ant.import?>
+<project>
+<target name="jar" depends="html">
+	<delete file="../Jar/BalayageK2.jar" />
+	<copy tofile="../Jar/BalayageK2.jar" file="../../../../LILASV3/Jar/lilasV3.jar"/>
+	<jar jarfile="../Jar/BalayageK2.jar"  update="yes" basedir="." includes="circuit/**/*.class balayageK2/**/*.class balayageK2/**/*.java HTML/*.html">
+		<manifest>
+			<attribute name="Built-By" value="Michel Castan" />
+			<attribute name="Main-Class" value="balayageK2.Main" />
+			<attribute name="Implementation-Version" value="$version, $TODAY"/> 
+		</manifest>
+	</jar>
+ 	<signjar jar="../Jar/BalayageK2.jar" keystore="../../../../LILASV3/Sources/monCleStore" alias="lilasV3store" keypass="LaClePourAppletLilasV3" storepass="LaClePourAppletLilasV3"/>
+</target>
+	<target name="html">
+		<antcall target="traiterHTML"><param name="nom" value="index"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.compteurCyclesParametriques.BalayageK2"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.compteurCyclesParametriques.Cubique2D"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.compteurCyclesParametriques.Myrberg"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.compteurCyclesParametriques.LatticeMap"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.parametriques.BalayageK2"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.parametriques.Cubique2D"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.parametriques.Myrberg"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.parametriques.LatticeMap"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.parametriques.UniModalMap"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.cascade2D.Quadratique2D"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.cascade2D.Cubique2D"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.cascade2D.Myrberg2D"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.cascade2D.LatticeMap"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.cascade2D.UniModalMap"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.cascade3D.Quadratique3D"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.cascade3D.Cubique3D"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.cascade3D.Myrberg3D"/></antcall>
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.AncienMyrberg"/></antcall>
+	</target>
+	<target name="traiterHTML">
+	 	<delete file="HTML/${nom}.html"/>
+	 	<exec executable="/usr/bin/wget">
+	 	    <arg value="--quiet"/>
+	 	    <arg value="http://localhost:8181/Recherche/ObjMateriel/BalayageK2/eclipse/XML/${nom}.html"/>
+	 	    <arg value="--output-document=HTML/${nom}.html"/>
+	 	</exec>
+	</target>
+	<target name="tsthtml">
+<antcall target="traiterHTML"><param name="nom" value="balayageK2.fonctions.cascade2D.LatticeMap"/></antcall>
+	</target>
+
+</project>

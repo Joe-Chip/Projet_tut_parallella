@@ -1,0 +1,3 @@
+grant codeBase "file:/home_pers/castan/BalayageK2.jar" {
+    permission java.security.AllPermission;
+};

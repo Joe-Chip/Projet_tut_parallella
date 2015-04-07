@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+  <Article>
+    <titre>parametriques.Myrberg</titre>
+
+    <tête>
+      <css direct="oui">
+div.zoneTitreCentréeSimple {
+  font-size: xx-large; font-family: times;
+  font-weight: bold;
+  text-align: center;
+  margin: 0; padding-top: 1em; padding-bottom: 1em; 
+  color: blue;
+} 
+      </css>
+    </tête>
+
+  <p>Fonction :
+<code langage="java" acolorier="oui" couleurfond="#e7e3e7">
+
+ foo(i,j) = (foo(i-1, j-1) ** 2) * b + a</code>
+  </p>
+</Article>
