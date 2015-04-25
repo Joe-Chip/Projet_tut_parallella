@@ -1,0 +1,28 @@
+#ifndef LISTE_COULEURS
+#define LISTE_COULEURS
+
+
+// Structure correspond à la classe Java ListeCouleurs
+// On ne cherche pas à coller exactement à la classe
+// mais l'idée est d'être suffisamment proche pour :
+// * éviter de trop changer le code de calcul
+// * faciliter les échanges entre objet Java et objet C
+typedef struct ListeCouleurs {
+
+    // Attributs
+    int nbrCouleurs;
+    int valeur;
+    int masqueCouleur;
+    int nbrBitsParCouleur;
+
+    // Méthodes (pas la peine de les mettre toutes) !
+    void (*ajouterCouleur)(struct ListeCouleurs * This, int nbCouleurs);
+    void (*Free)(struct ListeCouleurs * This);
+
+} ListeCouleurs;
+
+ListeCouleurs * New_ListeCouleurs(int nbrCouleurs);
+void ListeCouleurs_Free(ListeCouleurs * This);
+void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur);
+
+#endif   
