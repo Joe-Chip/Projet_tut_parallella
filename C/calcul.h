@@ -3,11 +3,10 @@
 
 #include "listeCouleurs.h"
 
-// Fonctions indépendantes
+// Fonction indépendante
 void calculM(); // FAIT (pour quadratique)
-void differerPoint2D(double x, double y, ListeCouleurs * lc);// CalculBase.java
-int differentEpsilonPres(double x, double y);//FAIT
-int egalEpsilonPres(double x, double y);//FAIT
+
+// Fonction(s) à rentrer dans la structure
 void envoyerLstPointsDifferes2D();// epiphany -> arm (CalculBase.java)
 
 // Structure correspond à la classe Java CalculCascade2D
@@ -16,11 +15,16 @@ void envoyerLstPointsDifferes2D();// epiphany -> arm (CalculBase.java)
 // * éviter de trop changer le code de calcul
 // * faciliter les échanges entre objet Java et objet C
 typedef struct Calcul {
+
+    // CalculBase
+    double xPrec;
+    double yPrec;
+    ListeCouleurs * lcPrec;
     
     // Attributs
     char ordreCycle; // byte java
-    int mMax;
-    int nMax;
+    int mMax; // 30 ?
+    int nMax; // 30
     int m; // oui, bien sûr
     double a; // ouiiiiiiiiiiii
     double b;
@@ -50,6 +54,7 @@ typedef struct Calcul {
     // Méthodes
     int (*differentEpsilonPres)(struct Calcul * This, double x, double y);
     int (*egalEpsilonPres)(struct Calcul * This, double x, double y);
+    void (*differerPoint2D)(struct Calcul * This, double x, double y, ListeCouleurs *lc);
     void (*calculM)(struct Calcul * This);
     void (*calcul)(struct Calcul * This);
 
@@ -60,6 +65,7 @@ int Calcul_differentEpsilonPres(Calcul * This, double x, double y);
 int Calcul_egalEpsilonPres(Calcul * This, double x, double y);
 void Calcul_calculM(Calcul * This);
 void Calcul_calcul(Calcul * This);
+void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * lc);
 
 #endif
 

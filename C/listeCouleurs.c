@@ -17,6 +17,11 @@ void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur) {
     This->valeur = (This->valeur) | 1 << noCouleur;
 }
 
+int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs * lc) {
+    // TODO
+    return 0;
+}
+
 ListeCouleurs * New_ListeCouleurs(int nbrCouleurs) {
     
     printf("[ListeCouleurs]Entrée constructeur\n");
