@@ -6,23 +6,6 @@
 
 // Fonctions indépendantes /////////////////////////////////
 
-void differerPoint2D(double x, double y, ListeCouleurs * lc) {
-    // TODO
-    // je suppose qu'il faudrait éviter d'appeler le code java sur le proc arm ici
-    // mais je ne vois pas trop comment faire
-    /*
-    if (lcPrec!=null && xPrec==x && yPrec==y && lcPrec.equals(lc)) return;
-    if (panelDessinBase.dansZoneAffichage(x, y)) {
-        lstPtsX.add(x);
-        lstPtsY.add(y);
-        lstPtsC.add(lc.nbrCouleurs);
-    }
-    xPrec = x;
-    yPrec = y;
-    lcPrec = lc;
-    */
-}
-
 void envoyerLstPointsDifferes2D() {
     // TODO 
     // là on envoie les données vers le proc arm
@@ -33,9 +16,27 @@ void envoyerLstPointsDifferes2D() {
 
 // Fonctions membres
 
+void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * lc) {
+    // TODO
+    
+    if ((This->lcPrec)!=NULL && (This->xPrec)==x && (This->yPrec)==y && This->lcPrec->equals(This->lcPrec, lc)) return; 
+    /* On le retire car on ne peut pas gérer PanelDessin en C
+    if (panelDessinBase.dansZoneAffichage(x, y)) {
+        lstPtsX.add(x);
+        lstPtsY.add(y);
+        lstPtsC.add(lc.nbrCouleurs);
+    }
+    */
+
+    This->xPrec = x;
+    This->yPrec = y;
+    This->lcPrec = lc;// FIXME !!!!!!!!!!!!!!!!!
+}
+
 int Calcul_egalEspilonPres(Calcul * This, double x, double y) {
     return (abs(x-y) <= (This->epsilonVal));
 }
+
 // rajouter les arguments
 // les attributs sont initialisés côté Java
 // on ne fait que les copier ici
@@ -112,7 +113,8 @@ void Calcul_calcul(Calcul * This) {
     
     // À DISTRIBUER SUR LES COEURS EPIPHANY -> e_calcul.c
     int n, j;
-    for (k = 1; k <= 100; k++) {
+    for (k = 1; k <= 100; k++) { // 100/ 16 coeurs = 6,25
+        // 100*30*30*30 = 2 700 000 boucles
         for (n = 1; n < This->nMax; n++) {
 
             This->noIterationCourante = n;
@@ -136,14 +138,17 @@ void Calcul_calcul(Calcul * This) {
                     //lc.ajouterCouleur(0);
                     lc->ajouterCouleur(lc, 0);
                     
+                    /* on ne gère pas panelDessin en C
                     if (panelDessinDistant == NULL) {
-                        //panelDessin.ajouterPoint(a, lgN[indiceIterationCourante][j], lc);
+                        panelDessin.ajouterPoint(a, lgN[indiceIterationCourante][j], lc);
                         panelDessin_ajouterPoint(This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // epiphany -> arm
                     }
                     else {
                         differerPoint2D(This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // problème
                     }
                    
+                    */
+
                     int m; 
                     for (m=2; m<This->mMax; m++) {
                         int cycle = 2; // cycle 2 uniquement
