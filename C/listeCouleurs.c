@@ -18,8 +18,8 @@ void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur) {
 }
 
 int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs * lc) {
-    // TODO
-    return 0;
+    // TODO: à vérifier
+    return (This->valeur == lc->valeur);
 }
 
 ListeCouleurs * New_ListeCouleurs(int nbrCouleurs) {

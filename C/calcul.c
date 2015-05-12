@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h> // pour isnan (=> Double.isNaN) et isinf (=> Double.isInfinite)
 #include "calcul.h"
+#include "balayageK2_Interface.h"
 
 
 // Fonctions indépendantes /////////////////////////////////
@@ -19,7 +20,8 @@ void envoyerLstPointsDifferes2D() {
 void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * lc) {
     // TODO
     
-    if ((This->lcPrec)!=NULL && (This->xPrec)==x && (This->yPrec)==y && This->lcPrec->equals(This->lcPrec, lc)) return; 
+    if ((This->lcPrec)!=NULL && (This->xPrec)==x && (This->yPrec)==y && This->lcPrec->equals(This->lcPrec, lc)) return;
+
     /* On le retire car on ne peut pas gérer PanelDessin en C
     if (panelDessinBase.dansZoneAffichage(x, y)) {
         lstPtsX.add(x);
@@ -42,7 +44,8 @@ int Calcul_egalEspilonPres(Calcul * This, double x, double y) {
 // on ne fait que les copier ici
 Calcul Calcul_creer() {
     Calcul This;
-
+    
+    printf("On crée un calcul\n");
     // Initialisation
     // Attributs: TODO
 
@@ -144,10 +147,9 @@ void Calcul_calcul(Calcul * This) {
                         panelDessin_ajouterPoint(This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // epiphany -> arm
                     }
                     else {
-                        differerPoint2D(This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // problème
-                    }
-                   
                     */
+   
+                    differerPoint2D(This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // problème
 
                     int m; 
                     for (m=2; m<This->mMax; m++) {
@@ -217,6 +219,11 @@ void Calcul_calcul(Calcul * This) {
 }
 
 // tests
-int main() {
-    return 0;
-} 
+JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
+  (JNIEnv * env, jclass thisObj) {
+  Calcul calcul = Calcul_creer();
+}
+
+/*int main() {*/
+/*    return 0;*/
+/*} */

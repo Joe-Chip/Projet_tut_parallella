@@ -247,9 +247,127 @@ public abstract class CalculCascade2D extends CalculBase {
 	}
 	
 	public void calcul() {
-		System.out.println("Wazaaaa calcuuuuuul");
-		
-		Interface.tests_calcul();
+		//System.out.println("==> "+a);
+		boolean cycleV = false;
+		boolean cycleH = false;
+		boolean cycleD = false;
+		boolean cycleNouv = false;
+		ordreCycle = 0;
+		// initialisation itération 0
+		for (int m=0; m<mMax; m++) {
+			lgN[0][m] = valInit[m];
+		}
+		// itération 2..nMax
+		indiceItérationCourante = 0;
+		indiceItérationSuivante = 1;
+		indiceItérationPrécédente = -1;
+		int indiceItérationAvantPrécédente = -1;
+
+		/*	
+pour k=1 to nbr_max
+ pour i=1 to n
+  pour j=1 to n
+  calculer y(i,j)
+ tq cycle et no gal à 2 on plot en noir
+  si cycl=2 
+  on test si V (on plot en vert), H (on plot en vert),D (on plot en rouge)  ou G (on plot en jaune)
+fin si
+fin tq
+fin j
+fin i
+fin k
+		 */
+
+		for (int k=1; k<=100; k++) {
+			for (int n=1; n<nMax; n++) {
+				noItérationCourante = n;
+				indiceItérationPrécédente= indiceItérationCourante;
+				indiceItérationCourante =  indiceItérationSuivante;
+				indiceItérationSuivante = (n+1) & masqueIndiceLigne;
+				lgN[indiceItérationCourante][0] = valInit[n];
+				for (int j=1; j<mMax; j++) { /* boucle j */
+					//System.out.println("Calcul ==> "+k+" "+n+" "+m+" "+lgN[indiceItérationCourante][m]);
+					if (arrêtRunner) return;
+					this.m = j;
+					//lgN[indiceItérationCourante][m] = fooRecur();
+					calculM();
+					//System.out.println("Point ==> "+a+" "+lgN[indiceItérationCourante][m]+" "+lgN[indiceItérationPrécédente][m-1]);
+					//System.out.println("Point ==> "+a+" "+lgN[indiceItérationCourante][m]);
+					if (!Double.isNaN(lgN[indiceItérationCourante][j]) &&
+							!Double.isInfinite(lgN[indiceItérationCourante][j])) {
+
+						// Rajout août 2010
+						// calcul des cycles H et V
+						ListeCouleurs lc = new ListeCouleurs(5);
+						lc.ajouterCouleur(0);
+						//if (panelDessinDistant==null) panelDessin.ajouterPoint(a, lgN[indiceItérationCourante][m], Color.green);
+						//Main.debug("Point "+a+" "+lgN[indiceItérationCourante][j]);
+						if (panelDessinDistant==null) {
+							panelDessin.ajouterPoint(a, lgN[indiceItérationCourante][j], lc);
+						}
+						else {
+							différerPoint2D(a, lgN[indiceItérationCourante][j], lc);//Color.red);
+						}
+						for (int m=2; m<mMax; m++) {
+							int cycle = 2; // cycle 2 uniquement
+							if (
+									(Math.abs(lgN[indiceItérationCourante][m]-lgN[indiceItérationSuivante][m]) > epsilonVal) &&
+									(Math.abs(lgN[indiceItérationCourante][m]-lgN[(noItérationCourante-cycle) & masqueIndiceLigne][m]) <= epsilonVal) &&
+									(Math.abs(lgN[indiceItérationCourante][m]-lgN[indiceItérationCourante][m-cycle]) <= epsilonVal)) {
+								// c'est un cycle 2.
+								// Test cycle vertical
+								if (differentEpsilonPres(lgN[indiceItérationCourante][m],lgN[indiceItérationCourante][m-1]) &&
+										egalEpsilonPres(lgN[indiceItérationCourante][m], lgN[indiceItérationPrécédente][m]) &&
+										egalEpsilonPres(lgN[indiceItérationCourante][m-1], lgN[indiceItérationPrécédente][m-1])) {
+									cycleV = true;
+								}
+								// test cycle horizontal
+								if (differentEpsilonPres(lgN[indiceItérationCourante][m], lgN[indiceItérationPrécédente][m]) &&
+										egalEpsilonPres(lgN[indiceItérationCourante][m], lgN[indiceItérationCourante][m-1]) &&
+										egalEpsilonPres(lgN[indiceItérationPrécédente][m], lgN[indiceItérationPrécédente][m-1])) {
+									cycleH = true;
+								}
+								// test cycle diagonal
+								if (differentEpsilonPres(lgN[indiceItérationCourante][m], lgN[indiceItérationPrécédente][m]) &&
+										egalEpsilonPres(lgN[indiceItérationCourante][m], lgN[indiceItérationPrécédente][m-1]) &&
+										egalEpsilonPres(lgN[indiceItérationCourante][m-1], lgN[indiceItérationPrécédente][m])) {
+									cycleD = true;
+								}
+								// test cycle Nouv
+								if (indiceItérationAvantPrécédente!=-1 &&
+										differentEpsilonPres(lgN[indiceItérationCourante][m], lgN[indiceItérationCourante][m-1]) && // y1#x1
+										differentEpsilonPres(lgN[indiceItérationCourante][m-1], lgN[indiceItérationPrécédente][m-1]) && // x1#x2
+										differentEpsilonPres(lgN[indiceItérationCourante][m-1], lgN[indiceItérationPrécédente][m]) && // x1#y2
+										differentEpsilonPres(lgN[indiceItérationCourante][m], lgN[indiceItérationPrécédente][m-1]) && // y1#x2
+										differentEpsilonPres(lgN[indiceItérationCourante][m], lgN[indiceItérationPrécédente][m]) && // y1#y2
+										differentEpsilonPres(lgN[indiceItérationPrécédente][m-1], lgN[indiceItérationPrécédente][m]) && // x2#y2
+										Math.abs(lgN[indiceItérationCourante][m-1]-lgN[indiceItérationAvantPrécédente][m-1]) <= epsilonVal &&
+										Math.abs(lgN[indiceItérationCourante][m]-lgN[indiceItérationAvantPrécédente][m]) <= epsilonVal) {
+									cycleNouv = true;
+								}
+								//ain.debug("==> ctrV="+ctrV+" ctrH="+ctrH+" ctrD="+ctrD+" cycleNouv="+cycleNouv);
+								if (cycleV) ctrV++;
+								if (cycleH) ctrH++;
+								if (cycleD) ctrD++;
+								if (cycleNouv) ctrG++;
+
+								if (cycleV) lc.ajouterCouleur(1);
+								if (cycleH) lc.ajouterCouleur(2);
+								if (cycleD) lc.ajouterCouleur(3);
+								if (cycleNouv) lc.ajouterCouleur(4);
+							}
+
+						}
+					}
+					//panelDessin.ajouterPoint(a, lgN[indiceItérationCourante][m], Color.red);
+					//System.out.println("Point ==> "+a+" "+lgN[indiceItérationCourante][m]+" "+lgN[indiceItérationPrécédente][m-1]);
+					ctrCalculs++;
+				}
+
+			}
+		}	
+		/* fin ajout */
+		envoyerLstPointsDifférés2D();
 	}
 
 	public void printTraceCycleDirect(int cycle, int m) {

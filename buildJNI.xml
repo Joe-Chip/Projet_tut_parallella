@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse.ant.import?>
+<project default="interfaceJavaC">
+	<!--<echo message="Je suis buildJNI.xml"/>-->
+	
+	<property name="CC" value="gcc"/>
+	<property environment="env"/>
+
+	<!-- pour avoir accès à Interface (dans balayageK2) -->
+	<path id="balayageK2.classpath">
+		<pathelement location="." />
+	</path>
+	
+	<target name="interfaceJavaC" depends="genhInterface">
+		<delete file="C/libcalcul.so"/><!-- pas sûr que ce soit nécessaire -->
+		<echo message="Génération de libcalcul.so"/>
+		<exec executable="${CC}">
+			<!--gcc -I /home/febroshka/Téléchargements/jdk1.7.0_75/include -I /jome/febroshka/Téléchargements/jdk1.7.0_75/include/linux/ -Wall -fPIC -c part2.c -o part2.o-->
+			<!--gcc -shared part2.c -o libpart2.so-->
+			<arg line="-shared -o C/libcalcul.so C/calcul.c -Wall -fPIC -I${env.JAVA_HOME}/include"/>
+		</exec>
+		<echo message="fichier C/libalcul.so créé!"/>
+	</target>
+	
+	<target name="genhInterface" description="Génération des fichiers .h pour Interface">
+		<echo message="Génération de balayageK2_interface.h"/>
+		<javah destdir="C" force="yes" >
+			<classpath refid="balayageK2.classpath"/>
+	  		<class name="balayageK2.Interface"/>
+		</javah>
+	</target>
+
+</project>
+
