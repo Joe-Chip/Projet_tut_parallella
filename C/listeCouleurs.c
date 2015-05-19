@@ -19,20 +19,21 @@ void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur) {
 
 int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs * lc) {
     // TODO: à vérifier
+    printf("Equals?\n");
     return (This->valeur == lc->valeur);
 }
 
 ListeCouleurs * New_ListeCouleurs(int nbrCouleurs) {
     
-    printf("[ListeCouleurs]Entrée constructeur\n");
+    //printf("[ListeCouleurs]Entrée constructeur\n");
 
     // Alloc
-    printf("[ListeCouleurs]Allocation\n");
+    //printf("[ListeCouleurs]Allocation\n");
     ListeCouleurs * This = malloc(sizeof(ListeCouleurs));
     if (!This) return NULL;
     
     // Init
-    printf("[ListeCouleurs]Intialisation\n");
+    //printf("[ListeCouleurs]Intialisation\n");
     This->nbrCouleurs = nbrCouleurs;
     if (nbrCouleurs != 1) {
         This->nbrBitsParCouleur = 24/nbrCouleurs;
@@ -45,14 +46,14 @@ ListeCouleurs * New_ListeCouleurs(int nbrCouleurs) {
 
     This->Free = ListeCouleurs_Free;
     This->ajouterCouleur = ListeCouleurs_ajouterCouleur;
+    This->equals = ListeCouleurs_equals;
     
-    printf("[ListeCouleurs]OK\n");
+    //printf("[ListeCouleurs]OK\n");
     return This;
 }
 
 // tests, ont l'air de marcher
 /*int main() {
-
     ListeCouleurs * lc = New_ListeCouleurs(5);
     printf("masque = 0x%x\n", lc->masqueCouleur);
     printf("valeur = %d\n", lc->valeur);
@@ -62,5 +63,4 @@ ListeCouleurs * New_ListeCouleurs(int nbrCouleurs) {
     lc->Free(lc);
     
     return 0;
-
 }*/

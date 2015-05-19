@@ -7,9 +7,13 @@
 
 // Fonctions indépendantes /////////////////////////////////
 
-void envoyerLstPointsDifferes2D() {
+void envoyerLstPointsDifferes2D(int k, int n, int j) {
     // TODO 
     // là on envoie les données vers le proc arm
+    //test
+    printf("k = %d\n", k);
+    printf("n = %d\n", n);
+    printf("j = %d\n", j);
 }
 
 
@@ -19,20 +23,31 @@ void envoyerLstPointsDifferes2D() {
 
 void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * lc) {
     // TODO
+    //printf("On diffère\n");
+    static int i = 0;
+    i++;
+    printf("i = %d\n", i);
     
     if ((This->lcPrec)!=NULL && (This->xPrec)==x && (This->yPrec)==y && This->lcPrec->equals(This->lcPrec, lc)) return;
-
+    //printf("On finit de différer1\n");
+    
     /* On le retire car on ne peut pas gérer PanelDessin en C
     if (panelDessinBase.dansZoneAffichage(x, y)) {
-        lstPtsX.add(x);
-        lstPtsY.add(y);
-        lstPtsC.add(lc.nbrCouleurs);
-    }
     */
+/*    This->lstPtsX[i] = x;*/
+/*    This->lstPtsY[i] = y;*/
+/*    This->lstPtsC[i] = lc->nbrCouleurs;*/
+    //}
+    
+    /*}
+    */
+    
 
     This->xPrec = x;
     This->yPrec = y;
+    //ListeCouleurs_Free(This->lcPrec);
     This->lcPrec = lc;// FIXME !!!!!!!!!!!!!!!!!
+    //printf("On finit de différer\n");
 }
 
 int Calcul_egalEspilonPres(Calcul * This, double x, double y) {
@@ -42,17 +57,77 @@ int Calcul_egalEspilonPres(Calcul * This, double x, double y) {
 // rajouter les arguments
 // les attributs sont initialisés côté Java
 // on ne fait que les copier ici
-Calcul Calcul_creer() {
+/*    double xPrec;*/
+/*    double yPrec;*/
+/*    ListeCouleurs * lcPrec;*/
+/*    */
+/*    // Attributs*/
+/*    char ordreCycle; // byte java*/
+/*    int mMax; // 30 ?*/
+/*    int nMax; // 30*/
+/*    int m; // oui, bien sûr*/
+/*    double a; // ouiiiiiiiiiiii*/
+/*    double b;*/
+/*    double epsilonVal;*/
+/*    int nombreLignes;*/
+/*    int masqueIndiceLigne;// = nombreLignes-1*/
+
+/*    int lstChoixPlanSelectedIndex;*/
+/*    double ** lgN;//[nombreLignes][mMax];*/
+/*    double * valInit;//[nMax];*/
+
+/*    int indiceIterationCourante;*/
+/*    int indiceIterationSuivante;*/
+/*    int indiceIterationPrecedente;*/
+/*    int noIterationCourante;*/
+/*    */
+/*    int arretRunner;//booleen*/
+/*    */
+/*    long ctrCalculs;// y avait un static en java...*/
+
+/*    // Attributs "privés"*/
+/*    int ctrV;*/
+/*    int ctrH;*/
+/*    int ctrD;*/
+/*    int ctrG;*/
+Calcul Calcul_creer(signed char ordreCycle, double * valInit, double a, double b, double epsilonVal,
+                    int mMax, int nMax, int m, int nombreLignes, int masqueIndiceLigne,
+                    int lstChoixPlanSelectedIndex, int indiceIterationCourante,
+                    int indiceIterationPrecedente, int noIterationCourante,
+                    long long ctrCalculs) {
     Calcul This;
     
-    printf("On crée un calcul\n");
+    //printf("On crée un calcul\n");
     // Initialisation
     // Attributs: TODO
+    This.ordreCycle = ordreCycle;
+    This.a = a;
+    This.b = b;
+    This.epsilonVal = epsilonVal;
+    This.mMax = mMax;
+    This.nMax = nMax;
+    This.m = m;
+    This.nombreLignes = nombreLignes;
+    This.masqueIndiceLigne = masqueIndiceLigne;
+    This.lstChoixPlanSelectedIndex = lstChoixPlanSelectedIndex;
+    This.indiceIterationCourante = indiceIterationCourante;
+    This.indiceIterationPrecedente = indiceIterationPrecedente;
+    This.noIterationCourante = noIterationCourante;
+    This.ctrCalculs = ctrCalculs;
+    
+    // Pas besoin de récupérer lgN, on va l'initialiser de toute façon
+    This.lgN = malloc(nombreLignes*sizeof(double *));
+    
+    int i;
+    for(i = 0; i<nombreLignes; i++) {
+        This.lgN[i] = malloc(mMax*sizeof(double));
+    }
 
     // Méthodes
     This.differentEpsilonPres = Calcul_differentEpsilonPres;
     This.egalEpsilonPres = Calcul_egalEspilonPres;
     This.calcul = Calcul_calcul;
+    This.calculM = Calcul_calculM;
 
     return This;
 }
@@ -64,6 +139,7 @@ int Calcul_differentEpsilonPres(Calcul * This, double x, double y) {
 
 // Quadratique
 void Calcul_calculM(Calcul * This) {
+    printf("On est dans calculM\n");
     double valM1 = (This->lgN)[This->indiceIterationCourante][(This->m)-1];//y[i][j-1]
     double valM2 = (This->lgN)[This->indiceIterationPrecedente][(This->m)-1];//y[i-1][j-1]
     double valMnouveau;
@@ -72,6 +148,7 @@ void Calcul_calculM(Calcul * This) {
     else
         valMnouveau =  valM2 * valM2  + (This->a) * valM1 + (This->b);
     (This->lgN)[This->indiceIterationCourante][This->m] = valMnouveau;
+    printf("On sort de calculM\n");
 }
 
 /*
@@ -95,7 +172,8 @@ fin k
 
 */
 void Calcul_calcul(Calcul * This) {
-
+    
+    printf("ouiiiii\n");
     // Booleens
     char cycleV = 0;
     char cycleH = 0;
@@ -114,12 +192,12 @@ void Calcul_calcul(Calcul * This) {
     This->indiceIterationPrecedente = -1;
     int indiceIterationAvantPrecedente = -1;
     
-    // À DISTRIBUER SUR LES COEURS EPIPHANY -> e_calcul.c
     int n, j;
     for (k = 1; k <= 100; k++) { // 100/ 16 coeurs = 6,25
         // 100*30*30*30 = 2 700 000 boucles
+        printf("k = %d\n",k);
         for (n = 1; n < This->nMax; n++) {
-
+            printf("n=%d\n",n);
             This->noIterationCourante = n;
             This->indiceIterationPrecedente = This->indiceIterationCourante;
             This->indiceIterationCourante = This->indiceIterationSuivante;
@@ -127,20 +205,22 @@ void Calcul_calcul(Calcul * This) {
             (This->lgN)[This->indiceIterationCourante][0] = (This->valInit)[n];
 
             for (j = 1; j < This->mMax; j++) {
-                if (This->arretRunner) return; // arm -> epiphany
-
+                printf("j = %d\n",j);
+                //if (This->arretRunner) return; // arm -> epiphany
+                
                 This->m = j;
+                printf("debug1\n");
                 This->calculM(This);
-        
+                printf("debug2\n");
                 if (!isnan((This->lgN)[This->indiceIterationCourante][j]) &&
                     !isinf((This->lgN)[This->indiceIterationCourante][j])) {
                     
                     // calcul des cycles H et V
                     //ListeCouleurs lc = new ListeCouleurs(5); // /!\ JAVA
-                    ListeCouleurs * lc = New_ListeCouleurs(5); // penser au free; pas sûr qu'il y ait besoin d'un pointeur en fait
+                    ListeCouleurs * lc = New_ListeCouleurs(5);
                     //lc.ajouterCouleur(0);
                     lc->ajouterCouleur(lc, 0);
-                    
+                    printf("On a créé ListeCouleurs\n");
                     /* on ne gère pas panelDessin en C
                     if (panelDessinDistant == NULL) {
                         panelDessin.ajouterPoint(a, lgN[indiceIterationCourante][j], lc);
@@ -149,7 +229,7 @@ void Calcul_calcul(Calcul * This) {
                     else {
                     */
    
-                    differerPoint2D(This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // problème
+                    Calcul_differerPoint2D(This, This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // problème
 
                     int m; 
                     for (m=2; m<This->mMax; m++) {
@@ -215,13 +295,48 @@ void Calcul_calcul(Calcul * This) {
         }
     }       
     /* fin ajout */
-    envoyerLstPointsDifferes2D();// epiphany -> arm
+    envoyerLstPointsDifferes2D(k,n,j);
 }
 
 // tests
+//FIXME: libérer données!
+
 JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
-  (JNIEnv * env, jclass thisObj) {
-  Calcul calcul = Calcul_creer();
+  (JNIEnv *env, jclass thisClass, jbyte ordreCycle, jdoubleArray valInit, jdouble a, jdouble b, jdouble epsilonVal, jint mMax,
+   jint nMax, jint m, jint nombreLignes, jint masqueIndiceLigne, jint lstChoixPlanSelectedIndex,
+   jint indiceIterationCourante, jint indiceIterationPrecedente, jint noIterationCourante,
+   jlong ctrCalculs) {
+  
+  
+  // JAVA => C
+  // On doit convertir les tableaux java vers des tableaux C
+  jboolean isCopy;
+  jdouble * valInitC = (*env)->GetDoubleArrayElements(env, valInit, &isCopy);
+
+  //printf("mMax = %d\n", (int) mMax);
+  
+  
+  // On crée notre calcul
+  Calcul calcul = Calcul_creer((signed char) ordreCycle,             // ne sert à rien ??
+                               (double *) valInitC,
+                               (double) a,
+                               (double) b,
+                               (double) epsilonVal,
+                               (int) mMax,
+                               (int) nMax,
+                               (int) m,
+                               (int) nombreLignes,
+                               (int) masqueIndiceLigne,
+                               (int) lstChoixPlanSelectedIndex,
+                               (int) indiceIterationCourante,       //sans doute inutile (on l'initialise)
+                               (int) indiceIterationPrecedente,     //sans doute inutile (on l'initialise)
+                               (int) noIterationCourante,           //sans doute inutile (on l'initialise)
+                               (long long) ctrCalculs               //possiblement inutile
+                              );
+  
+  calcul.calcul(&calcul);
+  
+  // C => JAVA
 }
 
 /*int main() {*/

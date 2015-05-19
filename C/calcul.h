@@ -21,8 +21,13 @@ typedef struct Calcul {
     double yPrec;
     ListeCouleurs * lcPrec;
     
+    // Des vectors normalement
+    double lstPtsX[100];
+    double lstPtsY[100];
+    int lstPtsC[100];
+    
     // Attributs
-    char ordreCycle; // byte java
+    signed char ordreCycle; // byte java
     int mMax; // 30 ?
     int nMax; // 30
     int m; // oui, bien sûr
@@ -43,7 +48,7 @@ typedef struct Calcul {
     
     int arretRunner;//booleen
     
-    long ctrCalculs;// y avait un static en java...
+    long long ctrCalculs;// y avait un static en java...
 
     // Attributs "privés"
     int ctrV;
@@ -60,7 +65,22 @@ typedef struct Calcul {
 
 } Calcul;
 
-Calcul Calcul_creer();
+Calcul Calcul_creer(signed char ordreCycle,
+                    double * valInit,  
+                    double a,
+                    double b,
+                    double epsilonVal,
+                    int mMax,
+                    int nMax,
+                    int m,
+                    int nombreLignes,
+                    int masqueIndiceLigne,
+                    int lstChoixPlanSelectedIndex,
+                    int indiceIterationCourante,
+                    int indiceIterationPrecedente,
+                    int noIterationCourante,
+                    long long ctrCalculs
+                   );
 int Calcul_differentEpsilonPres(Calcul * This, double x, double y);
 int Calcul_egalEpsilonPres(Calcul * This, double x, double y);
 void Calcul_calculM(Calcul * This);

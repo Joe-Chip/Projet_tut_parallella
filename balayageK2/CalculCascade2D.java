@@ -204,7 +204,8 @@ public abstract class CalculCascade2D extends CalculBase {
 		}
 		
 		boucleFor: for (double a=minX.getVal(); 
-			a<=maxX.getVal(); 
+			//a<=maxX.getVal();
+			a<=minX.getVal();
 			a=a+pasX.getVal()) {
 			b = valB.getVal();
 			ctrAppel++;
@@ -249,7 +250,24 @@ public abstract class CalculCascade2D extends CalculBase {
 	public void calcul() {
 		System.out.println("Wazaaaa calcuuuuuul");
 		
-		Interface.tests_calcul();
+		//Interface.tests_calcul();
+		Interface.tests_calcul(
+				ordreCycle,
+				//lgN,
+				valInit,
+				a,
+				b,
+				epsilonVal,
+			    mMax,
+			    nMax,
+			    m,
+			    nombreLignes,
+			    masqueIndiceLigne,
+			    lstChoixPlanSelectedIndex,
+			    indiceItérationCourante,
+			    indiceItérationPrécédente,
+			    noItérationCourante,
+			    ctrCalculs);
 	}
 
 	public void printTraceCycleDirect(int cycle, int m) {

@@ -8,7 +8,23 @@ public class Interface {
 		System.loadLibrary("calcul");
 	}
 	
-	static public native void tests_calcul();
+	static public native void tests_calcul(
+		byte ordreCycle,
+		//double[][] lgN,
+		double[] valInit,
+		double a,
+		double b,
+		double epsilonVal,
+	    int mMax,
+	    int nMax,
+	    int m,
+	    int nombreLignes,
+	    int masqueIndiceLigne,
+	    int lstChoixPlanSelectedIndex,
+	    int indiceIterationCourante,
+	    int indiceIterationPrecedente,
+	    int noIterationCourante,
+	    long ctrCalculs);
 	
 	static public void rien() {
 		
