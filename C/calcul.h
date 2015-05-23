@@ -16,15 +16,19 @@ void envoyerLstPointsDifferes2D();// epiphany -> arm (CalculBase.java)
 // * faciliter les échanges entre objet Java et objet C
 typedef struct Calcul {
 
+    // Initialement dans panel dessin
+    //int panelHeight;
+    //int panelWidth;
+    
     // CalculBase
     double xPrec;
     double yPrec;
     ListeCouleurs * lcPrec;
     
     // Des vectors normalement
-    double lstPtsX[100];
-    double lstPtsY[100];
-    int lstPtsC[100];
+    double lstPtsX[100000];
+    double lstPtsY[100000];
+    double lstPtsC[100000];
     
     // Attributs
     signed char ordreCycle; // byte java
@@ -79,6 +83,8 @@ Calcul Calcul_creer(signed char ordreCycle,
                     int indiceIterationCourante,
                     int indiceIterationPrecedente,
                     int noIterationCourante,
+                    //int height,
+                    //int width,
                     long long ctrCalculs
                    );
 int Calcul_differentEpsilonPres(Calcul * This, double x, double y);

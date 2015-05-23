@@ -24,6 +24,8 @@ public class Interface {
 	    int indiceIterationCourante,
 	    int indiceIterationPrecedente,
 	    int noIterationCourante,
+	    //int height,
+	    //int width,
 	    long ctrCalculs);
 	
 	static public void rien() {

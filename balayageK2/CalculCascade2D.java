@@ -2,6 +2,7 @@ package balayageK2;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -250,6 +251,8 @@ public abstract class CalculCascade2D extends CalculBase {
 	public void calcul() {
 		System.out.println("Wazaaaa calcuuuuuul");
 		
+		//Dimension dim = panelDessin.getSize();
+		
 		//Interface.tests_calcul();
 		Interface.tests_calcul(
 				ordreCycle,
@@ -267,6 +270,8 @@ public abstract class CalculCascade2D extends CalculBase {
 			    indiceItérationCourante,
 			    indiceItérationPrécédente,
 			    noItérationCourante,
+			    //dim.height,
+			    //dim.width,
 			    ctrCalculs);
 	}
 
