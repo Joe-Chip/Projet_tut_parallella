@@ -3,6 +3,7 @@
 #include <math.h> // pour isnan (=> Double.isNaN) et isinf (=> Double.isInfinite)
 #include "calcul.h"
 #include "balayageK2_Interface.h"
+#include "e-hal.h" // Bibliotheque hote pour Epiphany
 
 
 // Fonctions indépendantes /////////////////////////////////
@@ -14,6 +15,29 @@ void envoyerLstPointsDifferes2D(int k, int n, int j) {
     printf("k = %d\n", k);
     printf("n = %d\n", n);
     printf("j = %d\n", j);
+}
+
+
+// Fonction pour ouvrir l'Epiphany
+void open_Epiphany () {
+    // Structure contenant les infos de la plateforme Epiphany
+    e_platform_t eplat;
+    // Structure comprenant les infos d'un groupe de coeurs
+    e_epiphany_t edev;
+    // Un potentiel buffer
+    e_mem_t emem;
+
+    // Allumeeeeeeeeeeeez les coeurs
+    e_init(NULL);
+
+    // Reset d'Epiphany (on voudra peut-etre faire attention à ne l'utiliser qu'une fois)
+    e_reset_system();
+
+    // Recuperer les infos de la plateforme
+    e_get_platform(&eplat);
+
+    // Fermeture des coeurs
+    e_finalize();
 }
 
 

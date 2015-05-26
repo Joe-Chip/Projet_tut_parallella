@@ -256,9 +256,9 @@ public abstract class CalculCascade2D extends CalculBase {
 		System.out.println("Appel de calcul()");
 		
 		// Ajout antoine
-		//lstPtsX = new Vector<Double>();
-		//lstPtsY = new Vector<Double>();
-		//lstPtsC = new Vector<Integer>();
+		lstPtsX = new Vector<Double>();
+		lstPtsY = new Vector<Double>();
+		lstPtsC = new Vector<Integer>();
 		
 		if (panelDessinDistant == null) {
 			System.out.println("panelDessinDistant vaut null");
