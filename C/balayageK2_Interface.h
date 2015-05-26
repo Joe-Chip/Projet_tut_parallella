@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     balayageK2_Interface
  * Method:    tests_calcul
- * Signature: (B[DDDDIIIIIIIIIJ)V
+ * Signature: (B[DDDDIIIIIIIIIJLjava/util/Vector;Ljava/util/Vector;Ljava/util/Vector;)V
  */
 JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
-  (JNIEnv *, jclass, jbyte, jdoubleArray, jdouble, jdouble, jdouble, jint, jint, jint, jint, jint, jint, jint, jint, jint, jlong);
+  (JNIEnv *, jclass, jbyte, jdoubleArray, jdouble, jdouble, jdouble, jint, jint, jint, jint, jint, jint, jint, jint, jint, jlong, jobject, jobject, jobject);
 
 #ifdef __cplusplus
 }

@@ -18,6 +18,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.JComboBox;
@@ -208,11 +209,13 @@ public abstract class CalculCascade2D extends CalculBase {
 			//a<=maxX.getVal();
 			a<=minX.getVal();
 			a=a+pasX.getVal()) {
+			System.out.println(pasX.getVal());
 			b = valB.getVal();
 			ctrAppel++;
 			this.a = a;
 			if (applet.serveurPrincipal==null) calcul();
 			else {
+				System.out.println("init ?");
 				Hashtable<String, Object> initialisation = new Hashtable<String, Object>();
 				putHashtableCalcul(initialisation);
 				calculPar(initialisation);
@@ -249,14 +252,19 @@ public abstract class CalculCascade2D extends CalculBase {
 	}
 	
 	public void calcul() {
-		System.out.println("Wazaaaa calcuuuuuul");
 		
-		//Dimension dim = panelDessin.getSize();
+		System.out.println("Appel de calcul()");
 		
-		//Interface.tests_calcul();
+		// Ajout antoine
+		lstPtsX = new Vector<Double>();
+		lstPtsY = new Vector<Double>();
+		lstPtsC = new Vector<Integer>();
+		
+		lstPtsX.addElement(8.0);
+		
 		Interface.tests_calcul(
 				ordreCycle,
-				//lgN,
+				//double[][] lgN,
 				valInit,
 				a,
 				b,
@@ -270,9 +278,16 @@ public abstract class CalculCascade2D extends CalculBase {
 			    indiceItérationCourante,
 			    indiceItérationPrécédente,
 			    noItérationCourante,
-			    //dim.height,
-			    //dim.width,
-			    ctrCalculs);
+			    //int height,
+			    //int width,
+			    ctrCalculs,
+			    lstPtsX,
+			    lstPtsY,
+			    lstPtsC);
+		
+		System.out.println(lstPtsX);
+		System.out.println(lstPtsX.size());
+		
 	}
 
 	public void printTraceCycleDirect(int cycle, int m) {

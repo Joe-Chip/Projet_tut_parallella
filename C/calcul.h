@@ -9,6 +9,12 @@ void calculM(); // FAIT (pour quadratique)
 // Fonction(s) à rentrer dans la structure
 void envoyerLstPointsDifferes2D();// epiphany -> arm (CalculBase.java)
 
+//Des vectors normalement
+// On les sort de la structure car ils sont trop gros
+double lstPtsX[84100];
+double lstPtsY[60100];
+int lstPtsC[84100];
+
 // Structure correspond à la classe Java CalculCascade2D
 // On ne cherche pas à coller exactement à la classe
 // mais l'idée est d'être suffisamment proche pour :
@@ -23,12 +29,7 @@ typedef struct Calcul {
     // CalculBase
     double xPrec;
     double yPrec;
-    ListeCouleurs * lcPrec;
-    
-    // Des vectors normalement
-    double lstPtsX[100000];
-    double lstPtsY[100000];
-    double lstPtsC[100000];
+   ListeCouleurs * lcPrec;
     
     // Attributs
     signed char ordreCycle; // byte java

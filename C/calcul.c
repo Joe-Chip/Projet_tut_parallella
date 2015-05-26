@@ -23,10 +23,10 @@ void envoyerLstPointsDifferes2D(int k, int n, int j) {
 
 void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * lc) {
     // TODO
-    printf("On diffère\n");
+    //printf("On diffère\n");
     static int i = 0;
     
-    printf("i = %d\n", i);
+    //printf("i = %d\n", i);
     
     if ((This->lcPrec)!=NULL && (This->xPrec)==x && (This->yPrec)==y && This->lcPrec->equals(This->lcPrec, lc)) return;
     //printf("On finit de différer1\n");
@@ -35,9 +35,9 @@ void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * l
     /* On le retire car on ne peut pas gérer PanelDessin en C
     if (panelDessinBase.dansZoneAffichage(x, y)) {
     */
-    This->lstPtsX[i] = x;
-    This->lstPtsY[i] = y;
-    This->lstPtsC[i] = lc->nbrCouleurs;
+    lstPtsX[i] = x;
+    lstPtsY[i] = y;
+    lstPtsC[i] = lc->nbrCouleurs;
     i++;
     /*}
     */
@@ -47,7 +47,7 @@ void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * l
     This->yPrec = y;
     //ListeCouleurs_Free(This->lcPrec);
     This->lcPrec = lc;// FIXME !!!!!!!!!!!!!!!!!
-    printf("On finit de différer\n");
+    //printf("On finit de différer\n");
 }
 
 int Calcul_egalEspilonPres(Calcul * This, double x, double y) {
@@ -201,7 +201,6 @@ void Calcul_calcul(Calcul * This) {
     // Initialisation iteration 0
     int k;
     for (k = 0; k < This->mMax; k++) {
-        printf("Debug\n");
         (This->lgN)[0][k] = (This->valInit)[k];
     }
     This->indiceIterationCourante = 0;
@@ -212,9 +211,9 @@ void Calcul_calcul(Calcul * This) {
     int n, j;
     for (k = 1; k <= 100; k++) { // 100/ 16 coeurs = 6,25
         // 100*30*30*30 = 2 700 000 boucles
-        printf("k = %d\n",k);
+        //printf("k = %d\n",k);
         for (n = 1; n < This->nMax; n++) {
-            printf("n=%d\n",n);
+            //printf("n=%d\n",n);
             This->noIterationCourante = n;
             This->indiceIterationPrecedente = This->indiceIterationCourante;
             This->indiceIterationCourante = This->indiceIterationSuivante;
@@ -222,22 +221,21 @@ void Calcul_calcul(Calcul * This) {
             (This->lgN)[This->indiceIterationCourante][0] = (This->valInit)[n];
 
             for (j = 1; j < This->mMax; j++) {
-                printf("j = %d\n",j);
+                //printf("j = %d\n",j);
                 //if (This->arretRunner) return; // arm -> epiphany
                 
                 This->m = j;
-                printf("debug1\n");
                 This->calculM(This);
-                printf("debug2\n");
+
                 if (!isnan((This->lgN)[This->indiceIterationCourante][j]) &&
                     !isinf((This->lgN)[This->indiceIterationCourante][j])) {
                     
                     // calcul des cycles H et V
                     //ListeCouleurs lc = new ListeCouleurs(5); // /!\ JAVA
-                    //ListeCouleurs * lc = New_ListeCouleurs(5);
+                    ListeCouleurs * lc = New_ListeCouleurs(5);
                     //lc.ajouterCouleur(0);
-                    //lc->ajouterCouleur(lc, 0);
-                    printf("On a créé ListeCouleurs\n");
+                    lc->ajouterCouleur(lc, 0);
+                    //printf("On a créé ListeCouleurs\n");
                     /* on ne gère pas panelDessin en C
                     if (panelDessinDistant == NULL) {
                         panelDessin.ajouterPoint(a, lgN[indiceIterationCourante][j], lc);
@@ -246,7 +244,7 @@ void Calcul_calcul(Calcul * This) {
                     else {
                     */
    
-                    //Calcul_differerPoint2D(This, This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // problème
+                    Calcul_differerPoint2D(This, This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // problème
 
                     int m; 
                     for (m=2; m<This->mMax; m++) {
@@ -318,11 +316,35 @@ void Calcul_calcul(Calcul * This) {
 // tests
 //FIXME: libérer données!
 
+jobject NewDouble(JNIEnv* env, jdouble value)
+{
+    jclass cls = (*env)->FindClass(env, "java/lang/Double");
+    jmethodID methodID = (*env)->GetMethodID(env, cls, "<init>", "(D)V");
+    return (*env)->NewObject(env, cls, methodID, value);
+}
+
 JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
-  (JNIEnv *env, jclass thisClass, jbyte ordreCycle, jdoubleArray valInit, jdouble a, jdouble b, jdouble epsilonVal, jint mMax,
-   jint nMax, jint m, jint nombreLignes, jint masqueIndiceLigne, jint lstChoixPlanSelectedIndex,
-   jint indiceIterationCourante, jint indiceIterationPrecedente, jint noIterationCourante,
-   jlong ctrCalculs) {
+  (JNIEnv *env,
+   jclass thisClass,
+   jbyte ordreCycle,
+   jdoubleArray valInit,
+   jdouble a,
+   jdouble b,
+   jdouble epsilonVal,
+   jint mMax,
+   jint nMax,
+   jint m,
+   jint nombreLignes,
+   jint masqueIndiceLigne,
+   jint lstChoixPlanSelectedIndex,
+   jint indiceIterationCourante,
+   jint indiceIterationPrecedente,
+   jint noIterationCourante,
+   jlong ctrCalculs,
+   jobject j_lstPtsX,
+   jobject j_lstPtsY,
+   jobject j_lstPtsC
+   ) {
   
   
   // JAVA => C
@@ -330,7 +352,8 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
   jboolean isCopy;
   jdouble * valInitC = (*env)->GetDoubleArrayElements(env, valInit, &isCopy);
 
-  printf("mMax = %d\n", (int) mMax);
+/*  printf("mMax = %d\n", (int) mMax);*/
+  printf("hello ?\n");
   
   
   // On crée notre calcul
@@ -353,7 +376,29 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
                                (long long) ctrCalculs               //possiblement inutile
                               );
   
-  //calcul.calcul(&calcul);
+    calcul.calcul(&calcul);
+    
+    jclass clsvec = (*env)->FindClass(env,"java/util/Vector");
+
+    jmethodID jsize = (*env)->GetMethodID(env, clsvec, "size", "()I");
+    if (jsize == NULL) printf("method ID not valid\n\n");
+    
+    jmethodID jadd = (*env)->GetMethodID(env, clsvec, "addElement", "(Ljava/lang/Object;)V");
+    if (jsize == NULL) printf("pas de addElement\n\n");
+    
+    printf("size = %d\n", (*env)->CallIntMethod(env, j_lstPtsX, jsize));
+    int i;
+    for (i = 0 ; i < 84100 ; i++) {
+        jobject azerty = NewDouble(env,(jdouble) lstPtsX[i]);
+        (*env)->CallObjectMethod(env, j_lstPtsX, jadd, azerty);
+    }
+    
+    
+
+  
+  // On libère les données java
+  printf("Délivréééééé, libérééééééééééé\n");
+  (*env)->ReleaseDoubleArrayElements(env, valInit,valInitC, JNI_ABORT);
 
   // Nettoyage
   /*
@@ -364,7 +409,6 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
   free(calcul.lgN);
   */
 
-  // C => JAVA
 }
 
 /*int main() {*/
