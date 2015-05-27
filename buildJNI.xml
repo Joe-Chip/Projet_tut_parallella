@@ -4,13 +4,15 @@
 	<!--<echo message="Je suis buildJNI.xml"/>-->
 	
 	<property name="CC" value="gcc"/>
+	<property name="E-CC" value="e-gcc"/>
+	<property name="E-OBJCP" value="e-objcopy"/>
 	<property environment="env"/>
 
     <!-- Elements necessaires pour Epiphany --> 
     <property name="ESDK" value="${env.EPIPHANY_HOME}"/>
     <property name="ELIBS" value="-L ${ESDK}/tools/host/lib"/>
     <property name="EINCS" value="-I ${ESDK}/tools/host/include"/>
-    <!-- ELDF=${ESDK}/bsps/current/internal.ldf -->
+    <property name="ELDF" value="${ESDK}/bsps/current/internal.ldf"/>
 
 
 	<!-- pour avoir accès à Interface (dans balayageK2) -->
@@ -18,7 +20,7 @@
 		<pathelement location="." />
 	</path>
 	
-	<target name="interfaceJavaC" depends="genhInterface">
+	<target name="interfaceJavaC" depends="genhInterface,genererELF,genererSREC">
 		<delete file="C/libcalcul.so"/><!-- pas sûr que ce soit nécessaire -->
 		<echo message="Génération de libcalcul.so"/>
         <echo message="Includes : ${EINCS}, Libs : ${ELIBS}"/>
@@ -29,6 +31,23 @@
 		</exec>
 		<echo message="fichier C/libalcul.so créé!"/>
 	</target>
+
+    <target name="genererELF">
+        <echo message="Génération de e_calcul.elf"/>
+        <exec executable="${E-CC}">
+            <arg line="-O3  -T ${ELDF} C/e_calcul.c -o C/e_calcul.elf -le-lib -lm -ffast-math"/>
+        </exec>
+        <echo message="Génération de e_calcul.elf REUSSIE"/>
+    </target>
+
+    <target name="genererSREC" depends="genererELF">
+        <echo message="Génération de e_calcul.srec"/>
+        <exec executable="${E-OBJCP}">
+            <arg line="--srec-forceS3 --output-target srec C/e_calcul.elf C/e_calcul.srec"/>
+        </exec>
+        <echo message="Génération de e_calcul.srec REUSSIE"/>
+    </target>
+
 	
 	<target name="genhInterface" description="Génération des fichiers .h pour Interface">
 		<echo message="Génération de balayageK2_interface.h"/>

@@ -19,7 +19,7 @@ void envoyerLstPointsDifferes2D(int k, int n, int j) {
 
 
 // Fonction pour ouvrir l'Epiphany
-void open_Epiphany () {
+int open_Epiphany () {
     // Structure contenant les infos de la plateforme Epiphany
     e_platform_t eplat;
     // Structure comprenant les infos d'un groupe de coeurs
@@ -34,10 +34,24 @@ void open_Epiphany () {
     e_reset_system();
 
     // Recuperer les infos de la plateforme
-    e_get_platform(&eplat);
+    e_get_platform_info(&eplat);
+
+    // Ouverture du workgroup
+    e_open(&edev, 32, 8, 4, 4);
+
+    // Lancement du travail sur les coeurs
+    if (E_OK != e_load_group("C/e_calcul.srec", &edev, 0, 0, 4, 4, E_TRUE)) {
+        fprintf(stderr, "Erreur chargement sur les coeurs\n");
+        return EXIT_FAILURE;
+    }
+
+    // Fermeture du workgroup
+    e_close(&edev);
 
     // Fermeture des coeurs
     e_finalize();
+
+    return EXIT_SUCCESS;
 }
 
 
@@ -435,7 +449,10 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
         jobject unPtC = NewInteger(env,(jdouble) lstPtsC[i]);
         (*env)->CallObjectMethod(env, j_lstPtsC, jadd, unPtC);
     }
-    
+   
+    // Test call epiphany
+    open_Epiphany();
+ 
   
   // On libère les données java
   printf("Délivréééééé, libérééééééééééé\n");
