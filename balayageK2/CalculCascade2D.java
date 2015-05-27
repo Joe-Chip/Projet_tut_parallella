@@ -256,11 +256,15 @@ public abstract class CalculCascade2D extends CalculBase {
 		System.out.println("Appel de calcul()");
 		
 		// Ajout antoine
-		lstPtsX = new Vector<Double>();
-		lstPtsY = new Vector<Double>();
-		lstPtsC = new Vector<Integer>();
+		//lstPtsX = new Vector<Double>();
+		//lstPtsY = new Vector<Double>();
+		//lstPtsC = new Vector<Integer>();
 		
-		lstPtsX.addElement(8.0);
+		if (panelDessinDistant == null) {
+			System.out.println("panelDessinDistant vaut null");
+		}
+		
+		//lstPtsX.addElement(8.0);
 		
 		Interface.tests_calcul(
 				ordreCycle,
@@ -285,8 +289,10 @@ public abstract class CalculCascade2D extends CalculBase {
 			    lstPtsY,
 			    lstPtsC);
 		
-		System.out.println(lstPtsX);
+		//System.out.println(lstPtsX);
 		System.out.println(lstPtsX.size());
+		System.out.println(lstPtsY.size());
+		System.out.println(lstPtsC.size());
 		
 	}
 

@@ -323,6 +323,14 @@ jobject NewDouble(JNIEnv* env, jdouble value)
     return (*env)->NewObject(env, cls, methodID, value);
 }
 
+jobject NewInteger(JNIEnv* env, jint value)
+{
+    jclass cls = (*env)->FindClass(env, "java/lang/Integer");
+    jmethodID methodID = (*env)->GetMethodID(env, cls, "<init>", "(I)V");
+    return (*env)->NewObject(env, cls, methodID, value);
+}
+
+
 JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
   (JNIEnv *env,
    jclass thisClass,
@@ -387,14 +395,23 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
     if (jsize == NULL) printf("pas de addElement\n\n");
     
     printf("size = %d\n", (*env)->CallIntMethod(env, j_lstPtsX, jsize));
+    
     int i;
     for (i = 0 ; i < 84100 ; i++) {
-        jobject azerty = NewDouble(env,(jdouble) lstPtsX[i]);
-        (*env)->CallObjectMethod(env, j_lstPtsX, jadd, azerty);
+        jobject unPtX = NewDouble(env,(jdouble) lstPtsX[i]);
+        (*env)->CallObjectMethod(env, j_lstPtsX, jadd, unPtX);
     }
     
+    for(i = 0; i < 84100 ; i++) {
+        jobject unPtY = NewDouble(env,(jdouble) lstPtsY[i]);
+        (*env)->CallObjectMethod(env, j_lstPtsY, jadd, unPtY);
+    }
     
-
+    for(i = 0; i < 84100 ; i++) {
+        jobject unPtC = NewInteger(env,(jdouble) lstPtsC[i]);
+        (*env)->CallObjectMethod(env, j_lstPtsC, jadd, unPtC);
+    }
+    
   
   // On libère les données java
   printf("Délivréééééé, libérééééééééééé\n");
