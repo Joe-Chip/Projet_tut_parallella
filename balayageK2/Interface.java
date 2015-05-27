@@ -1,5 +1,7 @@
 package balayageK2;
 
+import java.util.Vector;
+
 public class Interface {
 
 	static {
@@ -26,7 +28,10 @@ public class Interface {
 	    int noIterationCourante,
 	    //int height,
 	    //int width,
-	    long ctrCalculs);
+	    long ctrCalculs,
+	    Vector<Double> lstPtsX,
+	    Vector<Double> lstPtsY,
+	    Vector<Integer> lstPtsC);
 	
 	static public void rien() {
 		
