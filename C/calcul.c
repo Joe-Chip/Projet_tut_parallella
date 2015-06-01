@@ -20,14 +20,20 @@ void envoyerLstPointsDifferes2D(int k, int n, int j) {
 
 
 // Fonction pour ouvrir l'Epiphany
-int open_Epiphany () {
+int open_Epiphany (Calcul * monCalcul) {
+    
+    int addr = 0x3000;
+    
+    /*
+     * Initialisation
+     */
+
     // Structure contenant les infos de la plateforme Epiphany
     e_platform_t eplat;
+    
     // Structure comprenant les infos d'un groupe de coeurs
     e_epiphany_t edev;
-    // Un potentiel buffer
-    e_mem_t emem;
-
+    
     // Allumeeeeeeeeeeeez les coeurs
     e_init(NULL);
 
@@ -37,33 +43,51 @@ int open_Epiphany () {
     // Recuperer les infos de la plateforme
     e_get_platform_info(&eplat);
 
-    e_alloc(&emem, 0x0, 32768);// buff de 32ko
 
-    // Ouverture du workgroup
-    e_open(&edev, 32, 8, 4, 4);
+    /*
+     * Chargement programme sur coeur
+     */
 
-    int qd = 42;
+    e_open(&edev, 0, 0, 1, 1);
+    e_reset_group(&edev);
 
-    e_write(&emem, 0, 0, 0x0, &qd, sizeof(qd));
-
-    // Lancement du travail sur les coeurs
-    if (E_OK != e_load_group("C/e_calcul.srec", &edev, 0, 0, 4, 4, E_TRUE)) {
-        fprintf(stderr, "Erreur chargement sur les coeurs\n");
+    if (E_OK != e_load("C/e_calcul.srec", &edev, 0, 0, E_FALSE)) {
+        fprintf(stderr, "Erreur chargement coeur\n");
         return EXIT_FAILURE;
     }
 
-    printf("On a lancé Épiphany !!!\n");
-    sleep(10);
-    
-    e_read(&emem, 0, 0, 0x0, &qd, sizeof(qd));
-    printf("qd = %d\n", qd);
+
+    /*
+     * Envoi données calcul
+     */
+    //Calcul calculDeTest, resultat2;
+    //calculDeTest.m = 123; // test : on envoie 123
+    e_write(&edev, 0, 0, 0x3000, monCalcul, sizeof(Calcul));
+
+
+    /*
+     * Lancement programme + réception résultat
+     */
+
+    e_start_group(&edev);
+    usleep(10000);
+    Calcul resultat2; 
+    e_read(&edev, 0, 0, 0x3000, &resultat2, sizeof(Calcul));
+    printf("Resultat2.a = %d\n", resultat2.m); // on récupère 567
+
+
+    /*
+     * Fermeture coeurs
+     */
 
     // Fermeture du workgroup
     e_close(&edev);
 
-    // Fermeture des coeurs
+    // Fermeture du coeur
     e_finalize();
+    usleep(10000);
 
+    printf("Programme Epiphany terminé\n");
     return EXIT_SUCCESS;
 }
 
@@ -166,15 +190,15 @@ Calcul Calcul_creer(signed char ordreCycle, double * valInit, double a, double b
     This.indiceIterationPrecedente = indiceIterationPrecedente;
     This.noIterationCourante = noIterationCourante;
     This.ctrCalculs = ctrCalculs;
-    This.valInit = valInit;
+    //This.valInit = valInit; // copier les valeurs!
     //This.lstPtsX = 1;
     //This.panelHeight = height;
     //This.panelWidth = width;
     
     // Pas besoin de récupérer lgN, on va l'initialiser de toute façon
-    
-    This.lgN = malloc(nombreLignes*sizeof(double *));
-
+     
+    //This.lgN = malloc(nombreLignes*sizeof(double *));
+    /*
     if (This.lgN == NULL) {
         printf("Il y a un gros problème\n");
         exit(1);
@@ -188,7 +212,7 @@ Calcul Calcul_creer(signed char ordreCycle, double * valInit, double a, double b
             exit(1);
         }
     }
-    
+    */
 
     // Méthodes
     This.differentEpsilonPres = Calcul_differentEpsilonPres;
@@ -434,7 +458,6 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
                                //(int) width,
                                (long long) ctrCalculs               //possiblement inutile
                               );
-  
     //calcul.calcul(&calcul);
     
     jclass clsvec = (*env)->FindClass(env,"java/util/Vector");
@@ -445,7 +468,7 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
     jmethodID jadd = (*env)->GetMethodID(env, clsvec, "addElement", "(Ljava/lang/Object;)V");
     if (jsize == NULL) printf("pas de addElement\n\n");
     
-    printf("size = %d\n", (*env)->CallIntMethod(env, j_lstPtsX, jsize));
+    //printf("size = %d\n", (*env)->CallIntMethod(env, j_lstPtsX, jsize));
     
     int i;/*
     for (i = 0 ; i < 84100 ; i++) {
@@ -464,16 +487,16 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
     }
    */
     // Test call epiphany
-    open_Epiphany();
+    open_Epiphany(&calcul);
  
   
-  // On libère les données java
-  printf("Délivréééééé, libérééééééééééé\n");
-  printf("EXIT_SUCESS= %d\n", EXIT_SUCCESS); 
+    // On libère les données java
+    printf("Délivréééééé, libérééééééééééé\n");
+    printf("sizeof(Calcul) = %d\n", sizeof(Calcul));
   (*env)->ReleaseDoubleArrayElements(env, valInit,valInitC, JNI_ABORT);
 
   // Nettoyage
-  /*
+  /* 
   int i;
   for(i = 0; i<nombreLignes; i++) {
     free(calcul.lgN[i]);
@@ -483,6 +506,3 @@ JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
 
 }
 
-/*int main() {*/
-/*    return 0;*/
-/*} */

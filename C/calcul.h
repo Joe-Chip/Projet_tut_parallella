@@ -11,9 +11,9 @@ void envoyerLstPointsDifferes2D();// epiphany -> arm (CalculBase.java)
 
 //Des vectors normalement
 // On les sort de la structure car ils sont trop gros
-double lstPtsX[84100];
-double lstPtsY[84100];
-int lstPtsC[84100];
+double lstPtsX[100];
+double lstPtsY[100];
+int lstPtsC[100];
 
 // Structure correspond à la classe Java CalculCascade2D
 // On ne cherche pas à coller exactement à la classe
