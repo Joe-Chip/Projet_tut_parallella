@@ -254,7 +254,7 @@ public abstract class CalculCascade2D extends CalculBase {
 	public void calcul() {
 		
 		System.out.println("Appel de calcul()");
-				
+		System.out.println("mMax = "+mMax);	
 		int[] tabPtsY = new int[1000];
 		tabPtsY = Interface.tests_calcul(
                 this,
@@ -279,6 +279,21 @@ public abstract class CalculCascade2D extends CalculBase {
 			    panelDessin.maxYVal);
 		
 		System.out.println("tabPtsY = " + tabPtsY[0]);
+        String nom = "OUTPUT";
+        File f = new File("Data_"+ nom +".data");
+        try {
+            FileWriter fout = new FileWriter(f);
+            BufferedWriter bw = new BufferedWriter(fout);
+            bw.write(this.getClass().getName());bw.newLine();
+            for(int a : tabPtsY) {
+                bw.write("=> " + a); bw.newLine();
+            }
+            bw.flush();
+            bw.close();
+            System.out.println("Fichier "+f.getAbsolutePath()+" créé !");
+        } catch (IOException e) {
+            System.out.println("Erreur IO sur Fichier "+f.getAbsolutePath()+" !");
+        }
 	}
 
 	public void printTraceCycleDirect(int cycle, int m) {

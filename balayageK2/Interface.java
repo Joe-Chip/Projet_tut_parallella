@@ -9,8 +9,7 @@ public class Interface {
 	}
 	
 	static public native int[] tests_calcul(
-        CalculCascade2D classe,
-        
+        CalculCascade2D objet,
 		double[] valInit,
         /*
 		double a,

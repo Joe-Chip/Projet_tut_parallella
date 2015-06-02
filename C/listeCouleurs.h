@@ -17,13 +17,11 @@ typedef struct ListeCouleurs {
 
     // Méthodes (pas la peine de les mettre toutes) !
     void (*ajouterCouleur)(struct ListeCouleurs * This, int nbCouleurs);
-    void (*Free)(struct ListeCouleurs * This);
     int (*equals)(struct ListeCouleurs * This, struct ListeCouleurs * lc);
 
 } ListeCouleurs;
 
-ListeCouleurs * New_ListeCouleurs(int nbrCouleurs);
-void ListeCouleurs_Free(ListeCouleurs * This);
+ListeCouleurs New_ListeCouleurs(int nbrCouleurs);
 void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur);
 int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs * lc);
 

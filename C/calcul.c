@@ -108,20 +108,17 @@ int convertX(double x) {
 
 void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * lc) {
     
-    if ( !((This->lcPrec)!=NULL && (This->xPrec)==x && (This->yPrec)==y && This->lcPrec->equals(This->lcPrec, lc)) ){
-        
+    if ( !((This->xPrec)==x && (This->yPrec)==y && (This->lcPrec).equals(&(This->lcPrec), lc)) ){
+        //printf("on entre");
         This->ix = convertX(x);
         This->tabPtsY[convertY(y)] = lc->nbrCouleurs;
         
         This->xPrec = x;
         This->yPrec = y;
         
-        if (This->lcPrec != NULL) This->lcPrec->Free(This->lcPrec);
-        This->lcPrec = NULL;
-        This->lcPrec = lc;
+        This->lcPrec = *lc;
         
-    }
-  
+    } 
 }
 
 int Calcul_egalEspilonPres(Calcul * This, double x, double y) {
@@ -168,6 +165,7 @@ Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
                     int mMax, int nMax, int m, int nombreLignes, int masqueIndiceLigne,
                     int lstChoixPlanSelectedIndex, long long ctrCalculs) {
     Calcul This;
+    int i;
     
     //printf("On crée un calcul\n");
     // Initialisation
@@ -175,33 +173,36 @@ Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
     This.b = b;
     This.epsilonVal = epsilonVal;
     This.mMax = mMax;printf("mMax = %d\n", mMax);
-    This.nMax = nMax;
-    This.m = m;
-    This.nombreLignes = nombreLignes;
-    This.masqueIndiceLigne = masqueIndiceLigne;
+    This.nMax = nMax;printf("nMax = %d\n", nMax);
+
+    This.m = m;printf("nMax = %d\n", m);
+    This.nombreLignes = nombreLignes;printf("nMax = %d\n", nombreLignes);
+    This.masqueIndiceLigne = masqueIndiceLigne;printf("nMax = %d\n", masqueIndiceLigne);
     This.lstChoixPlanSelectedIndex = lstChoixPlanSelectedIndex;
     This.ctrCalculs = ctrCalculs;
-    This.valInit = valInit;// à copier plutôt
-    This.lcPrec = NULL;
-    This.lgN = NULL;
+    //This.valInit = valInit;// à copier plutôt
+    //This.lcPrec = NULL;
+    
+    for(i = 0; i < nMax; i++) {
+        This.valInit[i] = valInit[i];
+    }
     
     // Pas besoin de récupérer lgN, on va l'initialiser de toute façon
     
-    This.lgN = malloc(nombreLignes*sizeof(double *));
+/*    This.lgN = malloc(nombreLignes*sizeof(double *));*/
 
-    if (This.lgN == NULL) {
-        printf("Il y a un gros problème\n");
-        exit(1);
-    }
+/*    if (This.lgN == NULL) {*/
+/*        printf("Il y a un gros problème\n");*/
+/*        exit(1);*/
+/*    }*/
     
-    int i;
-    for(i = 0; i<nombreLignes; i++) {
-        This.lgN[i] = malloc(mMax*sizeof(double));
-        if (This.lgN[i] == NULL) {
-            printf("Il y a un gros problème\n");
-            exit(1);
-        }
-    }
+/*    for(i = 0; i<nombreLignes; i++) {*/
+/*        This.lgN[i] = malloc(mMax*sizeof(double));*/
+/*        if (This.lgN[i] == NULL) {*/
+/*            printf("Il y a un gros problème\n");*/
+/*            exit(1);*/
+/*        }*/
+/*    }*/
     
     for(i = 0; i < 1000; i++) {
         This.tabPtsY[i] = -1;
@@ -213,7 +214,7 @@ Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
     This.calcul = Calcul_calcul;
     This.calculM = Calcul_calculM;
 
-    return This;
+    return This;    
 }
 
 int Calcul_differentEpsilonPres(Calcul * This, double x, double y) {
@@ -266,7 +267,7 @@ void Calcul_calcul(Calcul * This) {
     This->ordreCycle = 0;
     
     // Initialisation iteration 0
-    int k;
+    int k, n, j, m;
     for (k = 0; k < This->mMax; k++) {
         (This->lgN)[0][k] = (This->valInit)[k];
     }
@@ -275,7 +276,6 @@ void Calcul_calcul(Calcul * This) {
     This->indiceIterationPrecedente = -1;
     int indiceIterationAvantPrecedente = -1;
     
-    int n, j;
     for (k = 1; k <= 100; k++) { // 100/ 16 coeurs = 6,25
         // 100*30*30*30 = 2 700 000 boucles
         //printf("k = %d\n",k);
@@ -289,7 +289,6 @@ void Calcul_calcul(Calcul * This) {
 
             for (j = 1; j < This->mMax; j++) {
                 //printf("j = %d\n",j);
-                //if (This->arretRunner) return; // arm -> epiphany
                 
                 This->m = j;
                 This->calculM(This);
@@ -298,9 +297,8 @@ void Calcul_calcul(Calcul * This) {
                     !isinf((This->lgN)[This->indiceIterationCourante][j])) {
                     
                     // calcul des cycles H et V
-                    //ListeCouleurs lc = new ListeCouleurs(5); // /!\ JAVA
-                    ListeCouleurs * lc = New_ListeCouleurs(5);
-                    lc->ajouterCouleur(lc, 0);
+                    ListeCouleurs lc = New_ListeCouleurs(5);
+                    lc.ajouterCouleur(&lc, 0);
                     //printf("On a créé ListeCouleurs\n");
                     
                     /* on ne gère pas panelDessin en C
@@ -311,10 +309,9 @@ void Calcul_calcul(Calcul * This) {
                     else {
                     */
    
-                    Calcul_differerPoint2D(This, This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // problème
-
-                    int m; 
-                    for (m=2; m<This->mMax; m++) {
+                    Calcul_differerPoint2D(This, This->a, (This->lgN)[This->indiceIterationCourante][j], &lc); // problème
+                    
+                    for (m=2; m<(This->mMax); m++) {
                         int cycle = 2; // cycle 2 uniquement
                         if ((abs((This->lgN)[This->indiceIterationCourante][m]-(This->lgN)[This->indiceIterationSuivante][This->m]) > This->epsilonVal) &&
                             (abs((This->lgN)[This->indiceIterationCourante][m]-(This->lgN)[(This->noIterationCourante-cycle) & (This->masqueIndiceLigne)][m]) <= (This->epsilonVal)) &&
@@ -365,10 +362,10 @@ void Calcul_calcul(Calcul * This) {
                             if (cycleH) (This->ctrH)++;
                             if (cycleD) (This->ctrD)++;
                             if (cycleNouv) (This->ctrG)++;
-                            //if (cycleV) lc->ajouterCouleur(lc, 1);
-                            //if (cycleH) lc->ajouterCouleur(lc, 2);
-                            //if (cycleD) lc->ajouterCouleur(lc, 3);
-                            //if (cycleNouv) lc->ajouterCouleur(lc, 4);
+                            if (cycleV) lc.ajouterCouleur(&lc, 1);
+                            if (cycleH) lc.ajouterCouleur(&lc, 2);
+                            if (cycleD) lc.ajouterCouleur(&lc, 3);
+                            if (cycleNouv) lc.ajouterCouleur(&lc, 4);
                         } 
                     }     
                 }
@@ -377,7 +374,7 @@ void Calcul_calcul(Calcul * This) {
         }
     }       
     /* fin ajout */
-    envoyerLstPointsDifferes2D(k,n,j);
+    envoyerLstPointsDifferes2D(k,n,j);    
 }
 
 // tests
@@ -434,15 +431,15 @@ JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
     jfieldID id_masqueIndiceLigne = (*env)->GetFieldID(env, classe, "masqueIndiceLigne", "I");
     jfieldID id_lstChoixPlanSelectedIndex = (*env)->GetFieldID(env, classe, "lstChoixPlanSelectedIndex", "I");
      
-    jdouble j_a = (*env)->GetDoubleField(env, classe, id_a);
-    jdouble j_b = (*env)->GetDoubleField(env, classe, id_b);
-    jdouble j_epsilonVal = (*env)->GetDoubleField(env, classe, id_epsilonVal);
-    jint j_mMax = (*env)->GetIntField(env, classe, id_mMax);
-    jint j_nMax = (*env)->GetIntField(env, classe, id_nMax);
-    jint j_m = (*env)->GetIntField(env, classe, id_m);
-    jint j_nombreLignes = (*env)->GetIntField(env, classe, id_nombreLignes);
-    jint j_masqueIndiceLigne = (*env)->GetIntField(env, classe, id_masqueIndiceLigne);
-    jint j_lstChoixPlanSelectedIndex = (*env)->GetIntField(env, classe, id_lstChoixPlanSelectedIndex);
+    jdouble j_a = (*env)->GetDoubleField(env, obj, id_a);
+    jdouble j_b = (*env)->GetDoubleField(env, obj, id_b);
+    jdouble j_epsilonVal = (*env)->GetDoubleField(env, obj, id_epsilonVal);
+    jint j_mMax = (*env)->GetIntField(env, obj, id_mMax);
+    jint j_nMax = (*env)->GetIntField(env, obj, id_nMax);
+    jint j_m = (*env)->GetIntField(env, obj, id_m);
+    jint j_nombreLignes = (*env)->GetIntField(env, obj, id_nombreLignes);
+    jint j_masqueIndiceLigne = (*env)->GetIntField(env, obj, id_masqueIndiceLigne);
+    jint j_lstChoixPlanSelectedIndex = (*env)->GetIntField(env, obj, id_lstChoixPlanSelectedIndex);
 
     
     printf("On rentre dans le C\n"); 
@@ -450,7 +447,6 @@ JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
     // On doit convertir les tableaux java vers des tableaux C
     jboolean isCopy;
     jdouble * valInitC = (*env)->GetDoubleArrayElements(env, j_valInit, &isCopy);
-    printf("test1\n"); 
   
     // À mettre dans une structure panelDessin ! Pour l'instant en global
     echelleX = (double) j_echelleX;
@@ -475,7 +471,7 @@ JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
                                (int) j_lstChoixPlanSelectedIndex,
                                0//(long long) ctrCalculs               //possiblement inutile
                               );
-    //calcul.calcul(&calcul);
+    calcul.calcul(&calcul);
     
     printf("On a fini de calculer\n");
     
@@ -501,12 +497,6 @@ JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
 
     // Nettoyage
      
-    for(i = 0; i<((int)j_nombreLignes); i++) {
-        free(calcul.lgN[i]);
-    }
-    free(calcul.lgN);
-    
-  
     return result;
 
 }

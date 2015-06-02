@@ -38,7 +38,7 @@ typedef struct Calcul {
     // CalculBase
     double xPrec;
     double yPrec;
-    ListeCouleurs * lcPrec;
+    ListeCouleurs lcPrec;
     
     // Attributs
     signed char ordreCycle; // byte java
@@ -52,8 +52,8 @@ typedef struct Calcul {
     int masqueIndiceLigne;// = nombreLignes-1
 
     int lstChoixPlanSelectedIndex;
-    double ** lgN;//[nombreLignes][mMax];
-    double * valInit;//[nMax];
+    double lgN[8][30];// variable, normalement [nombreLignes][mMax];
+    double valInit[30];//[nMax];
 
     int indiceIterationCourante;
     int indiceIterationSuivante;
