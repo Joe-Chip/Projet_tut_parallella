@@ -10,6 +10,8 @@ import java.util.Vector;
 
 import javax.swing.event.ChangeListener;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
+
 import balayageK2.awt.AppletDessin;
 import balayageK2.awt.ListeCouleurs;
 import balayageK2.awt.PanelCommande;
@@ -94,6 +96,7 @@ public abstract class CalculBase implements FonctionBalayage,  ActionListener, C
 	protected void envoyerLstPointsDifférés2D() {
 		if (panelDessinDistant!=null) try {
 			//Main.debug("Envoie "+a);
+			System.out.println("envoyerLstPointsDifférés2D");
 			panelDessinDistant.ajouterLstPoints2Ddistant(lstPtsX, lstPtsY, lstPtsC);
 			//System.out.println("Fin Envoie "+a);
 		} catch (RemoteException e) {
@@ -126,11 +129,12 @@ public abstract class CalculBase implements FonctionBalayage,  ActionListener, C
     private ListeCouleurs lcPrec;
 	protected void différerPoint2D(double x, double y, ListeCouleurs lc) {
 		if (lcPrec!=null && xPrec==x && yPrec==y && lcPrec.equals(lc)) return;
-		if (panelDessinBase.dansZoneAffichage(x, y)) {
+		//if (panelDessin.dansZoneAffichage(x, y)) {
+			System.out.println("differe");
 			lstPtsX.add(x);
 			lstPtsY.add(y);
 			lstPtsC.add(lc.nbrCouleurs);
-		}
+		//}
 		xPrec = x;
 		yPrec = y;
 		lcPrec = lc;

@@ -29,7 +29,7 @@ public class ServeurCalculImpl {
 							while (true) {
 								//System.out.println("Attente calcul ...");
 								Hashtable<String, Object> initCalcul = serveur.getCalcul();
-								//System.out.println("Calcul ID="+initCalcul.get("ID"));
+								System.out.println("Calcul ID="+initCalcul.get("ID"));
 								Class classeFonction = Class.forName((String)initCalcul.get("NomClasse"));
 								Constructor<FonctionBalayage> constructeur = null;
 								Class[] paramFormel = { Hashtable.class };
@@ -37,7 +37,7 @@ public class ServeurCalculImpl {
 								FonctionBalayage fonctionCourante = constructeur.newInstance(initCalcul);
 								fonctionCourante.calcul();
 								serveur.calculTerminé((String)initCalcul.get("ID"));
-								//System.out.println("Calcul terminé ID="+initCalcul.get("ID"));
+								System.out.println("Calcul terminé ID="+initCalcul.get("ID"));
 							}
 
 						} catch (Exception e) {

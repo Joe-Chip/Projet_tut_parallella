@@ -30,7 +30,9 @@ public class Configuration extends DefaultHandler {
 	}
 	
 	public void créer(String nomFich) {
+		System.out.println("nom fichier "+  nomFich);
 		lstProcess = new Vector<Process>();
+	
 		try {
 			SAXParser saxParser = factory.newSAXParser();
 			saxParser.parse( new File(nomFich), this ); 
@@ -45,6 +47,7 @@ public class Configuration extends DefaultHandler {
 	        Attributes attrs)
 	throws SAXException
 	{
+		System.out.println("startElement");
 	  String eName = sName; 
 	  if ("".equals(eName)) eName = qName;
 	  if (eName.equals("serveur")) {
@@ -56,7 +59,7 @@ public class Configuration extends DefaultHandler {
 		  String cmd = attrs.getValue("exec");
 		  try {
 			  cmd = "rsh "+machine+" "+cmd+" "+ipMachineCourante+" "+((nbrThreadStr==null)?"1":nbrThread);
-			  //System.out.println("==>"+cmd);
+			  System.out.println("==>"+cmd);
 			  final Process processus = Runtime.getRuntime().exec(cmd);
 			  lstProcess.add(processus);
 			  new Thread() {

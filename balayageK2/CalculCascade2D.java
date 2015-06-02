@@ -254,22 +254,12 @@ public abstract class CalculCascade2D extends CalculBase {
 	public void calcul() {
 		
 		System.out.println("Appel de calcul()");
-		
-		// Ajout antoine
-		lstPtsX = new Vector<Double>();
-		lstPtsY = new Vector<Double>();
-		lstPtsC = new Vector<Integer>();
-		
-		if (panelDessinDistant == null) {
-			System.out.println("panelDessinDistant vaut null");
-		}
-		
-		//lstPtsX.addElement(8.0);
-		
-		Interface.tests_calcul(
-				ordreCycle,
-				//double[][] lgN,
+				
+		int[] tabPtsY = new int[1000];
+		tabPtsY = Interface.tests_calcul(
+                this,
 				valInit,
+                /*
 				a,
 				b,
 				epsilonVal,
@@ -279,21 +269,16 @@ public abstract class CalculCascade2D extends CalculBase {
 			    nombreLignes,
 			    masqueIndiceLigne,
 			    lstChoixPlanSelectedIndex,
-			    indiceItérationCourante,
-			    indiceItérationPrécédente,
-			    noItérationCourante,
-			    //int height,
-			    //int width,
-			    ctrCalculs,
-			    lstPtsX,
-			    lstPtsY,
-			    lstPtsC);
+			    //ctrCalculs,
+                */
+			    panelDessin.échelleX,
+			    panelDessin.échelleY,
+			    panelDessin.deplX,
+			    panelDessin.deplY,
+			    panelDessin.maxXVal,
+			    panelDessin.maxYVal);
 		
-		//System.out.println(lstPtsX);
-		System.out.println(lstPtsX.size());
-		System.out.println(lstPtsY.size());
-		System.out.println(lstPtsC.size());
-		
+		System.out.println("tabPtsY = " + tabPtsY[0]);
 	}
 
 	public void printTraceCycleDirect(int cycle, int m) {

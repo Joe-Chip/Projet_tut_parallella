@@ -94,35 +94,34 @@ int open_Epiphany (Calcul * monCalcul) {
 
 /////////////////////////////////////////////////////////
 
+int convertY(double y) {
+    double res = (maxYVal-y+deplY)*echelleY;
+    return (int) res;
+}
+
+int convertX(double x) {
+    double res = (x+deplX-minXVal)*echelleX;
+    return (int) res;
+}
+
 // Fonctions membres
 
 void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * lc) {
-    // TODO
-    //printf("On diffère\n");
-    static int i = 0;
     
-    //printf("i = %d\n", i);
-    
-    if ((This->lcPrec)!=NULL && (This->xPrec)==x && (This->yPrec)==y && This->lcPrec->equals(This->lcPrec, lc)) return;
-    //printf("On finit de différer1\n");
-    
-    //  if (x < 
-    /* On le retire car on ne peut pas gérer PanelDessin en C
-    if (panelDessinBase.dansZoneAffichage(x, y)) {
-    */
-    lstPtsX[i] = x;
-    lstPtsY[i] = y;
-    lstPtsC[i] = lc->nbrCouleurs;
-    i++;
-    /*}
-    */
-    
-
-    This->xPrec = x;
-    This->yPrec = y;
-    //ListeCouleurs_Free(This->lcPrec);
-    This->lcPrec = lc;// FIXME !!!!!!!!!!!!!!!!!
-    //printf("On finit de différer\n");
+    if ( !((This->lcPrec)!=NULL && (This->xPrec)==x && (This->yPrec)==y && This->lcPrec->equals(This->lcPrec, lc)) ){
+        
+        This->ix = convertX(x);
+        This->tabPtsY[convertY(y)] = lc->nbrCouleurs;
+        
+        This->xPrec = x;
+        This->yPrec = y;
+        
+        if (This->lcPrec != NULL) This->lcPrec->Free(This->lcPrec);
+        This->lcPrec = NULL;
+        This->lcPrec = lc;
+        
+    }
+  
 }
 
 int Calcul_egalEspilonPres(Calcul * This, double x, double y) {
@@ -165,40 +164,31 @@ int Calcul_egalEspilonPres(Calcul * This, double x, double y) {
 /*    int ctrH;*/
 /*    int ctrD;*/
 /*    int ctrG;*/
-Calcul Calcul_creer(signed char ordreCycle, double * valInit, double a, double b, double epsilonVal,
+Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
                     int mMax, int nMax, int m, int nombreLignes, int masqueIndiceLigne,
-                    int lstChoixPlanSelectedIndex, int indiceIterationCourante,
-                    int indiceIterationPrecedente, int noIterationCourante,
-                    //int height, int width,
-                    long long ctrCalculs) {
+                    int lstChoixPlanSelectedIndex, long long ctrCalculs) {
     Calcul This;
     
     //printf("On crée un calcul\n");
     // Initialisation
-    // Attributs: TODO
-    This.ordreCycle = ordreCycle;
     This.a = a;
     This.b = b;
     This.epsilonVal = epsilonVal;
-    This.mMax = mMax;
+    This.mMax = mMax;printf("mMax = %d\n", mMax);
     This.nMax = nMax;
     This.m = m;
     This.nombreLignes = nombreLignes;
     This.masqueIndiceLigne = masqueIndiceLigne;
     This.lstChoixPlanSelectedIndex = lstChoixPlanSelectedIndex;
-    This.indiceIterationCourante = indiceIterationCourante;
-    This.indiceIterationPrecedente = indiceIterationPrecedente;
-    This.noIterationCourante = noIterationCourante;
     This.ctrCalculs = ctrCalculs;
-    //This.valInit = valInit; // copier les valeurs!
-    //This.lstPtsX = 1;
-    //This.panelHeight = height;
-    //This.panelWidth = width;
+    This.valInit = valInit;// à copier plutôt
+    This.lcPrec = NULL;
+    This.lgN = NULL;
     
     // Pas besoin de récupérer lgN, on va l'initialiser de toute façon
-     
-    //This.lgN = malloc(nombreLignes*sizeof(double *));
-    /*
+    
+    This.lgN = malloc(nombreLignes*sizeof(double *));
+
     if (This.lgN == NULL) {
         printf("Il y a un gros problème\n");
         exit(1);
@@ -212,7 +202,10 @@ Calcul Calcul_creer(signed char ordreCycle, double * valInit, double a, double b
             exit(1);
         }
     }
-    */
+    
+    for(i = 0; i < 1000; i++) {
+        This.tabPtsY[i] = -1;
+    }
 
     // Méthodes
     This.differentEpsilonPres = Calcul_differentEpsilonPres;
@@ -222,7 +215,6 @@ Calcul Calcul_creer(signed char ordreCycle, double * valInit, double a, double b
 
     return This;
 }
-
 
 int Calcul_differentEpsilonPres(Calcul * This, double x, double y) {
     return (abs(x-y) > (This->epsilonVal));
@@ -308,9 +300,9 @@ void Calcul_calcul(Calcul * This) {
                     // calcul des cycles H et V
                     //ListeCouleurs lc = new ListeCouleurs(5); // /!\ JAVA
                     ListeCouleurs * lc = New_ListeCouleurs(5);
-                    //lc.ajouterCouleur(0);
                     lc->ajouterCouleur(lc, 0);
                     //printf("On a créé ListeCouleurs\n");
+                    
                     /* on ne gère pas panelDessin en C
                     if (panelDessinDistant == NULL) {
                         panelDessin.ajouterPoint(a, lgN[indiceIterationCourante][j], lc);
@@ -406,103 +398,115 @@ jobject NewInteger(JNIEnv* env, jint value)
 }
 
 
-JNIEXPORT void JNICALL Java_balayageK2_Interface_tests_1calcul
-  (JNIEnv *env,
-   jclass thisClass,
-   jbyte ordreCycle,
-   jdoubleArray valInit,
-   jdouble a,
-   jdouble b,
-   jdouble epsilonVal,
-   jint mMax,
-   jint nMax,
-   jint m,
-   jint nombreLignes,
-   jint masqueIndiceLigne,
-   jint lstChoixPlanSelectedIndex,
-   jint indiceIterationCourante,
-   jint indiceIterationPrecedente,
-   jint noIterationCourante,
-   jlong ctrCalculs,
-   jobject j_lstPtsX,
-   jobject j_lstPtsY,
-   jobject j_lstPtsC
-   ) {
-  
-  
-  // JAVA => C
-  // On doit convertir les tableaux java vers des tableaux C
-  jboolean isCopy;
-  jdouble * valInitC = (*env)->GetDoubleArrayElements(env, valInit, &isCopy);
+JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
+    JNIEnv *env,
+    jclass thisClass,
+    jobject obj,
+    jdoubleArray j_valInit,
+    /*
+    jdouble a,
+    jdouble b,
+    jdouble epsilonVal,
+    jint mMax,
+    jint nMax,
+    jint m,
+    jint nombreLignes,
+    jint masqueIndiceLigne,
+    jint lstChoixPlanSelectedIndex,
+    jlong ctrCalculs,*/
+    jdouble j_echelleX,
+    jdouble j_echelleY,
+    jdouble j_deplX,
+    jdouble j_deplY,
+    jdouble j_minXVal,
+    jdouble j_maxYVal
+    ) {
+    
+    jclass classe = (*env)->GetObjectClass(env, obj);
 
-/*  printf("mMax = %d\n", (int) mMax);*/
-  printf("hello ?\n");
+    jfieldID id_a = (*env)->GetFieldID(env, classe, "a", "D");
+    jfieldID id_b = (*env)->GetFieldID(env, classe, "b", "D");
+    jfieldID id_epsilonVal = (*env)->GetFieldID(env, classe, "epsilonVal", "D");
+    jfieldID id_mMax = (*env)->GetFieldID(env, classe, "mMax", "I");
+    jfieldID id_nMax = (*env)->GetFieldID(env, classe, "nMax", "I");
+    jfieldID id_m = (*env)->GetFieldID(env, classe, "m", "I");
+    jfieldID id_nombreLignes = (*env)->GetFieldID(env, classe, "nombreLignes", "I");
+    jfieldID id_masqueIndiceLigne = (*env)->GetFieldID(env, classe, "masqueIndiceLigne", "I");
+    jfieldID id_lstChoixPlanSelectedIndex = (*env)->GetFieldID(env, classe, "lstChoixPlanSelectedIndex", "I");
+     
+    jdouble j_a = (*env)->GetDoubleField(env, classe, id_a);
+    jdouble j_b = (*env)->GetDoubleField(env, classe, id_b);
+    jdouble j_epsilonVal = (*env)->GetDoubleField(env, classe, id_epsilonVal);
+    jint j_mMax = (*env)->GetIntField(env, classe, id_mMax);
+    jint j_nMax = (*env)->GetIntField(env, classe, id_nMax);
+    jint j_m = (*env)->GetIntField(env, classe, id_m);
+    jint j_nombreLignes = (*env)->GetIntField(env, classe, id_nombreLignes);
+    jint j_masqueIndiceLigne = (*env)->GetIntField(env, classe, id_masqueIndiceLigne);
+    jint j_lstChoixPlanSelectedIndex = (*env)->GetIntField(env, classe, id_lstChoixPlanSelectedIndex);
+
+    
+    printf("On rentre dans le C\n"); 
+    // JAVA => C
+    // On doit convertir les tableaux java vers des tableaux C
+    jboolean isCopy;
+    jdouble * valInitC = (*env)->GetDoubleArrayElements(env, j_valInit, &isCopy);
+    printf("test1\n"); 
   
+    // À mettre dans une structure panelDessin ! Pour l'instant en global
+    echelleX = (double) j_echelleX;
+    echelleY = (double) j_echelleY;
+    deplX = (double) j_deplX;
+    deplY = (double) j_deplY;
+    minXVal = (double) j_minXVal;
+    maxYVal = (double) j_maxYVal;
   
-  // On crée notre calcul
-  Calcul calcul = Calcul_creer((signed char) ordreCycle,             // ne sert à rien ??
+    // On crée notre calcul
+    printf("On va créer le calcul\n");
+    Calcul calcul = Calcul_creer(
                                (double *) valInitC,
-                               (double) a,
-                               (double) b,
-                               (double) epsilonVal,
-                               (int) mMax,
-                               (int) nMax,
-                               (int) m,
-                               (int) nombreLignes,
-                               (int) masqueIndiceLigne,
-                               (int) lstChoixPlanSelectedIndex,
-                               (int) indiceIterationCourante,       //sans doute inutile (on l'initialise)
-                               (int) indiceIterationPrecedente,     //sans doute inutile (on l'initialise)
-                               (int) noIterationCourante,           //sans doute inutile (on l'initialise)
-                               //(int) height,
-                               //(int) width,
-                               (long long) ctrCalculs               //possiblement inutile
+                               (double) j_a,
+                               (double) j_b,
+                               (double) j_epsilonVal,
+                               (int) j_mMax,
+                               (int) j_nMax,
+                               (int) j_m,
+                               (int) j_nombreLignes,
+                               (int) j_masqueIndiceLigne,
+                               (int) j_lstChoixPlanSelectedIndex,
+                               0//(long long) ctrCalculs               //possiblement inutile
                               );
     //calcul.calcul(&calcul);
     
-    jclass clsvec = (*env)->FindClass(env,"java/util/Vector");
-
-    jmethodID jsize = (*env)->GetMethodID(env, clsvec, "size", "()I");
-    if (jsize == NULL) printf("method ID not valid\n\n");
+    printf("On a fini de calculer\n");
     
-    jmethodID jadd = (*env)->GetMethodID(env, clsvec, "addElement", "(Ljava/lang/Object;)V");
-    if (jsize == NULL) printf("pas de addElement\n\n");
+/*    printf("Voici le tableau de couleurs :\n");*/
+/*    int i;*/
+/*    for (i = 0; i < 1000; i++) {*/
+/*        printf("%d\n", calcul.tabPtsY[i]);*/
+/*    }*/
     
-    //printf("size = %d\n", (*env)->CallIntMethod(env, j_lstPtsX, jsize));
+    jintArray result = (*env)->NewIntArray(env, 1000);
     
-    int i;/*
-    for (i = 0 ; i < 84100 ; i++) {
-        jobject unPtX = NewDouble(env,(jdouble) lstPtsX[i]);
-        (*env)->CallObjectMethod(env, j_lstPtsX, jadd, unPtX);
+    // fill a temp structure to use to populate the java int array
+    jint tmp[1000];
+    int i;
+    for (i = 0; i < 1000; i++) {
+        tmp[i] = calcul.tabPtsY[i]; // put whatever logic you want to populate the values here.
     }
-    
-    for(i = 0; i < 84100 ; i++) {
-        jobject unPtY = NewDouble(env,(jdouble) lstPtsY[i]);
-        (*env)->CallObjectMethod(env, j_lstPtsY, jadd, unPtY);
-    }
-    
-    for(i = 0; i < 84100 ; i++) {
-        jobject unPtC = NewInteger(env,(jdouble) lstPtsC[i]);
-        (*env)->CallObjectMethod(env, j_lstPtsC, jadd, unPtC);
-    }
-   */
-    // Test call epiphany
-    open_Epiphany(&calcul);
  
+    (*env)->SetIntArrayRegion(env, result, 0, 1000, tmp);
   
     // On libère les données java
-    printf("Délivréééééé, libérééééééééééé\n");
-    printf("sizeof(Calcul) = %d\n", sizeof(Calcul));
-  (*env)->ReleaseDoubleArrayElements(env, valInit,valInitC, JNI_ABORT);
+    (*env)->ReleaseDoubleArrayElements(env, j_valInit,valInitC, JNI_ABORT);
 
-  // Nettoyage
-  /* 
-  int i;
-  for(i = 0; i<nombreLignes; i++) {
-    free(calcul.lgN[i]);
-  }
-  free(calcul.lgN);
-  */
+    // Nettoyage
+     
+    for(i = 0; i<((int)j_nombreLignes); i++) {
+        free(calcul.lgN[i]);
+    }
+    free(calcul.lgN);
+    
+  
+    return result;
 
 }
-

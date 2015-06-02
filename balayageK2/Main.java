@@ -83,7 +83,9 @@ public class Main {
 	    	    ServeurPrincipal stubServeur = (ServeurPrincipal) UnicastRemoteObject.exportObject(applet.serveurPrincipal, 0);
 
 	    	    // Bind the remote object's stub in the registry
+				System.out.println("avant locate !");
 	    	    Registry registry = LocateRegistry.getRegistry();
+				System.out.println("avant rebind !");
 	    	    registry.rebind("ServeurPrincipal", stubServeur);
 	    	    System.out.println("Serveur Principal prêt");
 	    	    if (fichierConfiguration!=null) {

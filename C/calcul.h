@@ -11,9 +11,17 @@ void envoyerLstPointsDifferes2D();// epiphany -> arm (CalculBase.java)
 
 //Des vectors normalement
 // On les sort de la structure car ils sont trop gros
-double lstPtsX[100];
-double lstPtsY[100];
-int lstPtsC[100];
+//double lstPtsX[84100];
+//double lstPtsY[84100];
+//int lstPtsC[84100];
+
+// À déplacer dans une structure PanelDessin
+double echelleX;
+double echelleY;
+double deplX;
+double deplY;
+double minXVal;
+double maxYVal;
 
 // Structure correspond à la classe Java CalculCascade2D
 // On ne cherche pas à coller exactement à la classe
@@ -23,20 +31,21 @@ int lstPtsC[100];
 typedef struct Calcul {
 
     // Initialement dans panel dessin
-    //int panelHeight;
-    //int panelWidth;
+    // Le tableau de valeurs que l'on renvoie
+    int tabPtsY[1000];
+    int ix;
     
     // CalculBase
     double xPrec;
     double yPrec;
-   ListeCouleurs * lcPrec;
+    ListeCouleurs * lcPrec;
     
     // Attributs
     signed char ordreCycle; // byte java
     int mMax; // 30 ?
     int nMax; // 30
-    int m; // oui, bien sûr
-    double a; // ouiiiiiiiiiiii
+    int m;
+    double a;
     double b;
     double epsilonVal;
     int nombreLignes;
@@ -70,7 +79,7 @@ typedef struct Calcul {
 
 } Calcul;
 
-Calcul Calcul_creer(signed char ordreCycle,
+Calcul Calcul_creer(
                     double * valInit,  
                     double a,
                     double b,
@@ -81,11 +90,6 @@ Calcul Calcul_creer(signed char ordreCycle,
                     int nombreLignes,
                     int masqueIndiceLigne,
                     int lstChoixPlanSelectedIndex,
-                    int indiceIterationCourante,
-                    int indiceIterationPrecedente,
-                    int noIterationCourante,
-                    //int height,
-                    //int width,
                     long long ctrCalculs
                    );
 int Calcul_differentEpsilonPres(Calcul * This, double x, double y);

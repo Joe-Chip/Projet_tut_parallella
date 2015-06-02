@@ -1,7 +1,5 @@
 package balayageK2;
 
-import java.util.Vector;
-
 public class Interface {
 
 	static {
@@ -10,10 +8,11 @@ public class Interface {
 		System.loadLibrary("calcul");
 	}
 	
-	static public native void tests_calcul(
-		byte ordreCycle,
-		//double[][] lgN,
+	static public native int[] tests_calcul(
+        CalculCascade2D classe,
+        
 		double[] valInit,
+        /*
 		double a,
 		double b,
 		double epsilonVal,
@@ -23,15 +22,15 @@ public class Interface {
 	    int nombreLignes,
 	    int masqueIndiceLigne,
 	    int lstChoixPlanSelectedIndex,
-	    int indiceIterationCourante,
-	    int indiceIterationPrecedente,
-	    int noIterationCourante,
-	    //int height,
-	    //int width,
-	    long ctrCalculs,
-	    Vector<Double> lstPtsX,
-	    Vector<Double> lstPtsY,
-	    Vector<Integer> lstPtsC);
+	    //long ctrCalculs,
+        */
+	    double echelleX,
+	    double echelleY,
+	    double deplX,
+	    double deplY,
+	    double maxXVal,
+	    double maxYVal
+	);
 	
 	static public void rien() {
 		
