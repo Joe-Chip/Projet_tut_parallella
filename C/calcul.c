@@ -8,7 +8,7 @@
 
 
 // Fonctions indépendantes /////////////////////////////////
-
+/*
 void envoyerLstPointsDifferes2D(int k, int n, int j) {
     // TODO 
     // là on envoie les données vers le proc arm
@@ -16,13 +16,20 @@ void envoyerLstPointsDifferes2D(int k, int n, int j) {
     printf("k = %d\n", k);
     printf("n = %d\n", n);
     printf("j = %d\n", j);
-}
+}*/
 
 
 // Fonction pour ouvrir l'Epiphany
 int open_Epiphany (Calcul * monCalcul) {
-    
-    int addr = 0x3000;
+    int addr_message = 0x0100; 
+    int addr_flag = 0x1000;
+    int addr_calcul = 0x1004;
+    int addr_echelleX = addr_calcul+sizeof(Calcul);
+    int addr_echelleY = addr_echelleX + sizeof(double);
+    int addr_deplX = addr_echelleY + sizeof(double);
+    int addr_deplY = addr_deplX + sizeof(double);
+    int addr_minXVal = addr_deplY + sizeof(double);
+    int addr_maxYVal = addr_minXVal + sizeof(double);
     
     /*
      * Initialisation
@@ -35,47 +42,91 @@ int open_Epiphany (Calcul * monCalcul) {
     e_epiphany_t edev;
     
     // Allumeeeeeeeeeeeez les coeurs
-    e_init(NULL);
+    if (E_OK != e_init(NULL)) {
+        fprintf(stderr, "Problème lor de l'initialisation de la carte\n");
+        return EXIT_FAILURE;
+    }
 
     // Reset d'Epiphany (on voudra peut-etre faire attention à ne l'utiliser qu'une fois)
-    e_reset_system();
+    if (E_OK !=  e_reset_system()) {
+        fprintf(stderr, "Problème de la réinitialisation du système\n");
+        return EXIT_FAILURE;
+    }
+
 
     // Recuperer les infos de la plateforme
-    e_get_platform_info(&eplat);
+    if (E_OK != e_get_platform_info(&eplat)) {
+        fprintf(stderr, "Problème lors de la récupération des informations sur la plate-forme\n");
+    }
 
 
     /*
      * Chargement programme sur coeur
      */
 
-    e_open(&edev, 0, 0, 1, 1);
-    e_reset_group(&edev);
+    if (E_OK != e_open(&edev, 0, 0, 1, 1)) {
+        fprintf(stderr, "Erreur lors de la définition du groupe de trvail\n");
+        return EXIT_FAILURE;
+    }
+    
+    if (E_OK != e_reset_group(&edev)) {
+        fprintf(stderr, "Erreur lors de la réinitialisation du groupe de travail\n");
+        return EXIT_FAILURE;
+    }
 
     if (E_OK != e_load("C/e_calcul.srec", &edev, 0, 0, E_FALSE)) {
         fprintf(stderr, "Erreur chargement coeur\n");
         return EXIT_FAILURE;
     }
-
-
+    
+    usleep(10000);
+    printf("valInit[0] = %lf\n", monCalcul->valInit[0]);
     /*
      * Envoi données calcul
      */
     //Calcul calculDeTest, resultat2;
     //calculDeTest.m = 123; // test : on envoie 123
-    e_write(&edev, 0, 0, 0x3000, monCalcul, sizeof(Calcul));
-
+    int flag = 0;
+    int message = -1;
+    e_write(&edev, 0, 0, addr_flag, &flag, sizeof(int));
+    e_write(&edev, 0, 0, addr_calcul, monCalcul, sizeof(Calcul));
+    e_write(&edev, 0, 0, addr_echelleX, &echelleX, sizeof(double)); 
+    e_write(&edev, 0, 0, addr_echelleY, &echelleY, sizeof(double));
+    e_write(&edev, 0, 0, addr_deplX, &deplX, sizeof(double)); 
+    e_write(&edev, 0, 0, addr_deplY, &deplY, sizeof(double)); 
+    e_write(&edev, 0, 0, addr_minXVal, &minXVal, sizeof(double)); 
+    e_write(&edev, 0, 0, addr_maxYVal, &maxYVal, sizeof(double)); 
+    e_write(&edev, 0, 0, addr_message, &message, sizeof(int));
 
     /*
      * Lancement programme + réception résultat
      */
 
-    e_start_group(&edev);
+    if (E_OK != e_start_group(&edev)) {
+        fprintf(stderr, "Erreur de lancement du groupe\n");
+        return EXIT_FAILURE;
+    }
     usleep(10000);
+    printf("On a lancé le groupe\n");
+    
+    /*while(flag != 1) {
+        printf("Programme en cours, veuillez patienter\n");
+        printf("flag = %d\n", flag);
+        printf("message = %d\n", message);
+        sleep(1);
+        e_read(&edev, 0, 0, addr_flag, &flag, sizeof(int));
+        e_read(&edev, 0, 0, addr_message, &message, sizeof(int));
+    }
+    */
+    printf("C'est bon !\n");
+    sleep(3);
     Calcul resultat2; 
-    e_read(&edev, 0, 0, 0x3000, &resultat2, sizeof(Calcul));
-    printf("Resultat2.a = %d\n", resultat2.m); // on récupère 567
-
-
+    e_read(&edev, 0, 0, addr_calcul, &resultat2, sizeof(Calcul));
+    printf("m = %d\n", resultat2.m);
+    e_read(&edev, 0, 0, addr_flag, &flag, sizeof(flag));
+    printf("flag = %d\n", flag);
+    e_read(&edev, 0, 0, addr_message, &message, sizeof(int));
+    printf("message = %d\n", message);
     /*
      * Fermeture coeurs
      */
@@ -91,39 +142,6 @@ int open_Epiphany (Calcul * monCalcul) {
     return EXIT_SUCCESS;
 }
 
-
-/////////////////////////////////////////////////////////
-
-int convertY(double y) {
-    double res = (maxYVal-y+deplY)*echelleY;
-    return (int) res;
-}
-
-int convertX(double x) {
-    double res = (x+deplX-minXVal)*echelleX;
-    return (int) res;
-}
-
-// Fonctions membres
-
-void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * lc) {
-    
-    if ( !((This->xPrec)==x && (This->yPrec)==y && (This->lcPrec).equals(&(This->lcPrec), lc)) ){
-        //printf("on entre");
-        This->ix = convertX(x);
-        This->tabPtsY[convertY(y)] = lc->nbrCouleurs;
-        
-        This->xPrec = x;
-        This->yPrec = y;
-        
-        This->lcPrec = *lc;
-        
-    } 
-}
-
-int Calcul_egalEspilonPres(Calcul * This, double x, double y) {
-    return (abs(x-y) <= (This->epsilonVal));
-}
 
 // rajouter les arguments
 // les attributs sont initialisés côté Java
@@ -208,173 +226,13 @@ Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
         This.tabPtsY[i] = -1;
     }
 
-    // Méthodes
-    This.differentEpsilonPres = Calcul_differentEpsilonPres;
-    This.egalEpsilonPres = Calcul_egalEspilonPres;
-    This.calcul = Calcul_calcul;
-    This.calculM = Calcul_calculM;
+    // Méthodes : à faire dans e_calcul.c
+    //This.differentEpsilonPres = Calcul_differentEpsilonPres;
+    //This.egalEpsilonPres = Calcul_egalEspilonPres;
+    //This.calcul = Calcul_calcul;
+    //This.calculM = Calcul_calculM;
 
     return This;    
-}
-
-int Calcul_differentEpsilonPres(Calcul * This, double x, double y) {
-    return (abs(x-y) > (This->epsilonVal));
-}
-
-// Quadratique
-void Calcul_calculM(Calcul * This) {
-    //printf("On est dans calculM\n");
-    double valM1 = (This->lgN)[This->indiceIterationCourante][(This->m)-1];//y[i][j-1]
-    double valM2 = (This->lgN)[This->indiceIterationPrecedente][(This->m)-1];//y[i-1][j-1]
-    double valMnouveau;
-    if (This->lstChoixPlanSelectedIndex == 0) 
-        valMnouveau =  valM2 * valM2  + (This->b) * valM1 + (This->a); // A
-    else
-        valMnouveau =  valM2 * valM2  + (This->a) * valM1 + (This->b);
-    (This->lgN)[This->indiceIterationCourante][This->m] = valMnouveau;
-    //printf("On sort de calculM\n");
-}
-
-/*
- * ÇA COMMENCE LÀ
- */
-
-/* Principe de l'algo
-
-pour k=1 to nbr_max
- pour i=1 to n
-  pour j=1 to n
-   calculer y(i,j)
-   tq cycle et no gal à 2 on plot en noir
-    si cycl=2 
-     on test si V (on plot en vert), H (on plot en vert),D (on plot en rouge) ou G (on plot en jaune)
-    fin si
-   fin tq
-  fin j
- fin i
-fin k
-
-*/
-void Calcul_calcul(Calcul * This) {
-    
-    printf("Démarrage du calcul...\n");
-    // Booleens
-    char cycleV = 0;
-    char cycleH = 0;
-    char cycleD = 0;
-    char cycleNouv = 0;
-    
-    This->ordreCycle = 0;
-    
-    // Initialisation iteration 0
-    int k, n, j, m;
-    for (k = 0; k < This->mMax; k++) {
-        (This->lgN)[0][k] = (This->valInit)[k];
-    }
-    This->indiceIterationCourante = 0;
-    This->indiceIterationSuivante = 1;
-    This->indiceIterationPrecedente = -1;
-    int indiceIterationAvantPrecedente = -1;
-    
-    for (k = 1; k <= 100; k++) { // 100/ 16 coeurs = 6,25
-        // 100*30*30*30 = 2 700 000 boucles
-        //printf("k = %d\n",k);
-        for (n = 1; n < This->nMax; n++) {
-            //printf("n=%d\n",n);
-            This->noIterationCourante = n;
-            This->indiceIterationPrecedente = This->indiceIterationCourante;
-            This->indiceIterationCourante = This->indiceIterationSuivante;
-            This->indiceIterationSuivante = (n+1) & (This->masqueIndiceLigne);
-            (This->lgN)[This->indiceIterationCourante][0] = (This->valInit)[n];
-
-            for (j = 1; j < This->mMax; j++) {
-                //printf("j = %d\n",j);
-                
-                This->m = j;
-                This->calculM(This);
-
-                if (!isnan((This->lgN)[This->indiceIterationCourante][j]) &&
-                    !isinf((This->lgN)[This->indiceIterationCourante][j])) {
-                    
-                    // calcul des cycles H et V
-                    ListeCouleurs lc = New_ListeCouleurs(5);
-                    lc.ajouterCouleur(&lc, 0);
-                    //printf("On a créé ListeCouleurs\n");
-                    
-                    /* on ne gère pas panelDessin en C
-                    if (panelDessinDistant == NULL) {
-                        panelDessin.ajouterPoint(a, lgN[indiceIterationCourante][j], lc);
-                        panelDessin_ajouterPoint(This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // epiphany -> arm
-                    }
-                    else {
-                    */
-   
-                    Calcul_differerPoint2D(This, This->a, (This->lgN)[This->indiceIterationCourante][j], &lc); // problème
-                    
-                    for (m=2; m<(This->mMax); m++) {
-                        int cycle = 2; // cycle 2 uniquement
-                        if ((abs((This->lgN)[This->indiceIterationCourante][m]-(This->lgN)[This->indiceIterationSuivante][This->m]) > This->epsilonVal) &&
-                            (abs((This->lgN)[This->indiceIterationCourante][m]-(This->lgN)[(This->noIterationCourante-cycle) & (This->masqueIndiceLigne)][m]) <= (This->epsilonVal)) &&
-                            (abs((This->lgN)[This->indiceIterationCourante][m]-(This->lgN)[This->indiceIterationCourante][m-cycle]) <= This->epsilonVal)) {
-
-                            // c'est un cycle 2 !
-
-                            // Test cycle vertical
-                            if (This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationCourante][m-1]) &&
-                                This->egalEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationPrecedente][m]) &&
-                                This->egalEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m-1], (This->lgN)[This->indiceIterationPrecedente][m-1])) {
-                               
-                                //cycleV = true;
-                                cycleV = 1;
-                            }
-                            
-                            // test cycle horizontal
-                            if (This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationPrecedente][m]) &&
-                                This->egalEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationCourante][m-1]) &&
-                                This->egalEpsilonPres(This, (This->lgN)[This->indiceIterationPrecedente][m], (This->lgN)[This->indiceIterationPrecedente][m-1])) {
-                            
-                                cycleH = 1;
-                            }
-                            
-                            // test cycle diagonal
-                            if (This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationPrecedente][m]) &&
-                                This->egalEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationPrecedente][m-1]) &&
-                                This->egalEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m-1], (This->lgN)[This->indiceIterationPrecedente][m])) {
-
-                                cycleD = 1;
-                            }
-      
-                            // test cycle Nouv
-                            if (indiceIterationAvantPrecedente!=-1 &&
-                                This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationCourante][m-1]) && // y1#x1
-                                This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m-1], (This->lgN)[This->indiceIterationPrecedente][m-1]) && // x1#x2
-                                This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m-1], (This->lgN)[This->indiceIterationPrecedente][m]) && // x1#y2
-                                This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationPrecedente][m-1]) && // y1#x2
-                                This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationPrecedente][m]) && // y1#y2
-                                This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationPrecedente][m-1], (This->lgN)[This->indiceIterationPrecedente][m]) && // x2#y2
-                                abs((This->lgN)[This->indiceIterationCourante][m-1]-(This->lgN)[indiceIterationAvantPrecedente][m-1]) <= This->epsilonVal &&
-                                abs((This->lgN)[This->indiceIterationCourante][m]-(This->lgN)[indiceIterationAvantPrecedente][m]) <= This->epsilonVal) {
-  
-                                cycleNouv = 1;
-                            }
-                           
-                            if (cycleV) (This->ctrV)++;
-                            if (cycleH) (This->ctrH)++;
-                            if (cycleD) (This->ctrD)++;
-                            if (cycleNouv) (This->ctrG)++;
-                            if (cycleV) lc.ajouterCouleur(&lc, 1);
-                            if (cycleH) lc.ajouterCouleur(&lc, 2);
-                            if (cycleD) lc.ajouterCouleur(&lc, 3);
-                            if (cycleNouv) lc.ajouterCouleur(&lc, 4);
-                        } 
-                    }     
-                }
-                (This->ctrCalculs)++;
-            }
-        }
-    }       
-    /* fin ajout */
-    envoyerLstPointsDifferes2D(k,n,j);    
 }
 
 // tests
@@ -471,8 +329,11 @@ JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
                                (int) j_lstChoixPlanSelectedIndex,
                                0//(long long) ctrCalculs               //possiblement inutile
                               );
-    calcul.calcul(&calcul);
+    //calcul.calcul(&calcul);
+    printf("taille de Calcul = %d\n", sizeof(calcul));
+    printf("taille de Calcul = %d\n", sizeof(Calcul));
     
+    open_Epiphany(&calcul);
     printf("On a fini de calculer\n");
     
 /*    printf("Voici le tableau de couleurs :\n");*/

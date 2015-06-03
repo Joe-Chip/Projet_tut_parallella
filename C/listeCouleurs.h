@@ -21,8 +21,4 @@ typedef struct ListeCouleurs {
 
 } ListeCouleurs;
 
-ListeCouleurs New_ListeCouleurs(int nbrCouleurs);
-void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur);
-int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs * lc);
-
 #endif   

@@ -27,12 +27,13 @@
 		<exec executable="${CC}">
 			<!--gcc -I /home/febroshka/Téléchargements/jdk1.7.0_75/include -I /jome/febroshka/Téléchargements/jdk1.7.0_75/include/linux/ -Wall -fPIC -c part2.c -o part2.o-->
 			<!--gcc -shared part2.c -o libpart2.so-->
-			<arg line="-shared -o C/libcalcul.so C/calcul.c C/calcul.h C/listeCouleurs.c C/listeCouleurs.h -Wall -fPIC -I ${env.JAVA_HOME}/include ${EINCS} ${ELIBS} -le-hal"/>
+			<arg line="-shared -o C/libcalcul.so C/calcul.c C/calcul.h C/listeCouleurs.h -Wall -fPIC -I ${env.JAVA_HOME}/include ${EINCS} ${ELIBS} -le-hal"/>
 		</exec>
 		<echo message="fichier C/libalcul.so créé!"/>
 	</target>
 
     <target name="genererELF">
+        <delete file="C/e_calcul.elf"/>
         <echo message="Génération de e_calcul.elf"/>
         <exec executable="${E-CC}">
             <arg line="-O3  -T ${ELDF} C/e_calcul.c -o C/e_calcul.elf -le-lib -lm -ffast-math"/>
@@ -41,6 +42,7 @@
     </target>
 
     <target name="genererSREC" depends="genererELF">
+        <delete file="C/e_calcul.srec"/>
         <echo message="Génération de e_calcul.srec"/>
         <exec executable="${E-OBJCP}">
             <arg line="--srec-forceS3 --output-target srec C/e_calcul.elf C/e_calcul.srec"/>

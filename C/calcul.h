@@ -3,17 +3,9 @@
 
 #include "listeCouleurs.h"
 
-// Fonction indépendante
-void calculM(); // FAIT (pour quadratique)
 
 // Fonction(s) à rentrer dans la structure
 void envoyerLstPointsDifferes2D();// epiphany -> arm (CalculBase.java)
-
-//Des vectors normalement
-// On les sort de la structure car ils sont trop gros
-//double lstPtsX[84100];
-//double lstPtsY[84100];
-//int lstPtsC[84100];
 
 // À déplacer dans une structure PanelDessin
 double echelleX;
@@ -92,11 +84,6 @@ Calcul Calcul_creer(
                     int lstChoixPlanSelectedIndex,
                     long long ctrCalculs
                    );
-int Calcul_differentEpsilonPres(Calcul * This, double x, double y);
-int Calcul_egalEpsilonPres(Calcul * This, double x, double y);
-void Calcul_calculM(Calcul * This);
-void Calcul_calcul(Calcul * This);
-void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * lc);
 
 #endif
 
