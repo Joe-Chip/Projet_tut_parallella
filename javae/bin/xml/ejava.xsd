@@ -5,7 +5,7 @@
   <xsd:element name="primitive">
     <xsd:simpleType>
       <xsd:restriction base="xsd:token">
-        <xsd:enumeration value="boulean" />
+        <xsd:enumeration value="boolean" />
 	<xsd:enumeration value="byte" />
 	<xsd:enumeration value="char" />
 	<xsd:enumeration value="short" />
@@ -21,9 +21,9 @@
     <xsd:complexType>
       <xsd:choice>
         <xsd:element ref="primitive" />
-	<xsd:element name="object" type="xsd:IDREF" />
+	<xsd:element ref="type" />
       </xsd:choice>
-      <xsd:attribut name="type" use="required">
+      <xsd:attribute name="type" use="required">
         <xsd:simpleType>
 	  <xsd:restriction base="xsd:token">
        	    <xsd:enumeration value="array" />
@@ -32,39 +32,62 @@
 	    <xsd:enumeration value="List" />
           </xsd:restriction>
     	</xsd:simpleType>
-      </xsd:attribut>
-      <xsd:attribut name="size" use="required" />
+      </xsd:attribute>
+      <xsd:attribute name="size" type="xsd:unsignedInt" use="required" />
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="type">
+    <xsd:complexType>
+      <xsd:attribute name="object" type="xsd:IDREF" use="required" />
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="object">
     <xsd:complexType>
-      <xsd:choice maxOccurs="unbounded">
-        <xsd:element ref="primitive" />
-	<xsd:element ref="collection" />
-	<xsd:element name="type" type="xsd:IDREF" />
-      </xsd:choice>
-      <xsd:attribut name="name" type="ID" />
+      <xsd:sequence>
+	<xsd:element name="field" maxOccurs="unbounded">
+	  <xsd:complexType>
+	    <xsd:choice>
+              <xsd:element ref="primitive" />
+	      <xsd:element ref="collection" />
+	      <xsd:element ref="type" />
+	    </xsd:choice>
+	    <xsd:attribute name="name" type="xsd:NCName" use="required" />
+	  </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:ID" use="required" />
+      <xsd:attribute name="fqn" type="xsd:string" use="required" />
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="module">
     <xsd:complexType>
-      <xsd:attribut name="name" type="xsd:NCName" use="required" />
-      <xsd:attribut name="path" type="xsd:token" use="required" />
       <xsd:sequence>
         <xsd:element name="argument" maxOccurs="unbounded">
 	  <xsd:complexType>
-	    <xsd:attribut name="name" type="xsd:NCName" use="required" />
-	    <xsd:attribut name="type" type="xsd:IDREF" use="required" />
+	    <xsd:attribute name="name" type="xsd:NCName" use="required" />
+	    <xsd:attribute name="type" type="xsd:IDREF" use="required" />
 	  </xsd:complexType>
         </xsd:element>
 	<xsd:element name="result" maxOccurs="unbounded">
 	  <xsd:complexType>
-	    <xsd:attribut name="name" type="xsd:NCName" use="required" />
-	    <xsd:attribut name="type" type="xsd:IDREF" use="required" />
+	    <xsd:attribute name="name" type="xsd:NCName" use="required" />
+	    <xsd:attribute name="type" type="xsd:IDREF" use="required" />
 	  </xsd:complexType>
 	</xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:NCName" use="required" />
+      <xsd:attribute name="path" type="xsd:token" use="required" />
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="package">
+    <xsd:complexType>
+      <xsd:sequence>
+		<xsd:element ref="object" minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element ref="module" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
