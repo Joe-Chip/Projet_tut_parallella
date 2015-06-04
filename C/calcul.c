@@ -18,6 +18,36 @@ void envoyerLstPointsDifferes2D(int k, int n, int j) {
     printf("j = %d\n", j);
 }*/
 
+/*
+    // Structure contenant les infos de la plateforme Epiphany
+    e_platform_t eplat;
+    
+    // Recuperer les infos de la plateforme
+    if (E_OK != e_get_platform_info(&eplat)) {
+        fprintf(stderr, "Problème lors de la récupération des informations sur la plate-forme\n");
+    }
+*/
+
+
+/*
+ * Initialisation
+ */
+int init_Epiphany() {
+
+    // Allumeeeeeeeeeeeez les coeurs
+    if (E_OK != e_init(NULL)) {
+        fprintf(stderr, "Problème lor de l'initialisation de la carte\n");
+        return EXIT_FAILURE;
+    }
+
+    // Reset d'Epiphany (on voudra peut-etre faire attention à ne l'utiliser qu'une fois)
+    if (E_OK !=  e_reset_system()) {
+        fprintf(stderr, "Problème de la réinitialisation du système\n");
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
 
 // Fonction pour ouvrir l'Epiphany
 int open_Epiphany (Calcul * monCalcul) {
@@ -32,33 +62,9 @@ int open_Epiphany (Calcul * monCalcul) {
     int addr_minXVal = addr_deplY + sizeof(double);
     int addr_maxYVal = addr_minXVal + sizeof(double);
     
-    /*
-     * Initialisation
-     */
-
-    // Structure contenant les infos de la plateforme Epiphany
-    e_platform_t eplat;
-    
-    // Structure comprenant les infos d'un groupe de coeurs
     e_epiphany_t edev;
-
-    // Allumeeeeeeeeeeeez les coeurs
-    if (E_OK != e_init(NULL)) {
-        fprintf(stderr, "Problème lor de l'initialisation de la carte\n");
-        return EXIT_FAILURE;
-    }
-
-    // Reset d'Epiphany (on voudra peut-etre faire attention à ne l'utiliser qu'une fois)
-    if (E_OK !=  e_reset_system()) {
-        fprintf(stderr, "Problème de la réinitialisation du système\n");
-        return EXIT_FAILURE;
-    }
-
-
-    // Recuperer les infos de la plateforme
-    if (E_OK != e_get_platform_info(&eplat)) {
-        fprintf(stderr, "Problème lors de la récupération des informations sur la plate-forme\n");
-    }
+    
+    init_Epiphany();
 
     /*
      * Chargement programme sur coeur
@@ -233,24 +239,6 @@ Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
 
     return This;    
 }
-
-// tests
-//FIXME: libérer données!
-
-jobject NewDouble(JNIEnv* env, jdouble value)
-{
-    jclass cls = (*env)->FindClass(env, "java/lang/Double");
-    jmethodID methodID = (*env)->GetMethodID(env, cls, "<init>", "(D)V");
-    return (*env)->NewObject(env, cls, methodID, value);
-}
-
-jobject NewInteger(JNIEnv* env, jint value)
-{
-    jclass cls = (*env)->FindClass(env, "java/lang/Integer");
-    jmethodID methodID = (*env)->GetMethodID(env, cls, "<init>", "(I)V");
-    return (*env)->NewObject(env, cls, methodID, value);
-}
-
 
 JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
     JNIEnv *env,
