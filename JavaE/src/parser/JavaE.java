@@ -28,13 +28,13 @@ import org.xml.sax.SAXParseException;
 import exception.CircularReference;
 import exception.MultipleDeclaration;
 
-public class Parser {
+public class JavaE {
 
 	private Document doc;
 	private String path;
 	private String name;
 
-	public Parser(String path, String name) throws FileNotFoundException,
+	public JavaE(String path, String name) throws FileNotFoundException,
 			ParserConfigurationException, IOException, SAXException,
 			SAXParseException {
 		this.path = path;
@@ -102,20 +102,6 @@ public class Parser {
 				mod.addRes(name, Struct.namedStruct(type));
 			}
 		}
-		for (Entry<String, Struct> s : Struct.objects.entrySet()) {
-			System.out.println(s.getValue().getDeclare());
-		}
-		for (Entry<String, Struct> s : Struct.objects.entrySet()) {
-			try {
-				System.out.println(s.getValue().getStruct());
-			} catch (CircularReference e) {
-				System.out.println(e.getMessage());
-				System.exit(0);
-			}
-		}
-		for (Entry<String, Module> m : Module.modules.entrySet()) {
-			System.out.println(m.getValue().toString());
-		}
 	}
 
 	private Type nodeToType(Element field) {
@@ -137,12 +123,23 @@ public class Parser {
 	}
 
 	public void write() {
+		FileWriter fw;
+		BufferedWriter bw;
 		try {
-			FileWriter fw = new FileWriter(path + "/" + name + ".javae", false);
-			BufferedWriter bw = new BufferedWriter(fw);
+			System.out.println("Starting generating E" + name + ".java");
+			fw = new FileWriter(path + "/E" + name + ".java", false);
+			bw = new BufferedWriter(fw);
 			bw.write(this.generateClass());
 			bw.flush();
 			bw.close();
+			System.out.println("E" + name + ".java was succefuly generated");
+			System.out.println("Starting generating e" + name.toLowerCase() + ".h");
+			fw = new FileWriter(path + "/e" + name.toLowerCase() + ".h", false);
+			bw = new BufferedWriter(fw);
+			bw.write(this.generateHeader());
+			bw.flush();
+			bw.close();
+			System.out.println("e" + name.toLowerCase() + ".h was succefuly generated");
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 			System.exit(0);
@@ -160,21 +157,21 @@ public class Parser {
 		for (Struct object : objects)
 			dotJava.append("import " + object.getFullyQualifiedName() + ";\n");
 		dotJava.append("\n");
-		dotJava.append("public class " + this.name + " {\n");
+		dotJava.append("public class E" + this.name + " {\n");
 		dotJava.append("\n");
-		dotJava.append("\tprivate static " + this.name + " instance;\n");
+		dotJava.append("\tprivate static E" + this.name + " instance;\n");
 		dotJava.append("\tstatic {\n");
 		dotJava.append("\t\tinstance = null;\n");
 		dotJava.append("\t\tSystem.loadLibrary(\"" + path + "/" + this.name.toLowerCase() + ".so\");\n");
 		dotJava.append("\t}\n");
 		dotJava.append("\n");
-		dotJava.append("\tpublic static " + this.name + " open() {\n");
+		dotJava.append("\tpublic static E" + this.name + " open() {\n");
 		dotJava.append("\t\tif (instance == null)\n");
-		dotJava.append("\t\t\tinstance = new " + this.name + "();\n");
+		dotJava.append("\t\t\tinstance = new E" + this.name + "();\n");
 		dotJava.append("\t\treturn instance;\n");
 		dotJava.append("\t}\n");
 		dotJava.append("\n");
-		dotJava.append("\tprivate " + this.name + "() {\n");
+		dotJava.append("\tprivate E" + this.name + "() {\n");
 		dotJava.append("\t\tthis.einit();\n");
 		dotJava.append("\t}\n");
 		dotJava.append("\n");
@@ -207,6 +204,11 @@ public class Parser {
 		}
 		dotJava.append("}");
 		return dotJava.toString();
+	}
+	
+	private String generateHeader() {
+		StringBuilder dotH = new StringBuilder(); 
+		return dotH.toString();
 	}
 
 }

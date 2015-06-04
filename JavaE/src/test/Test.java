@@ -1,12 +1,12 @@
 package test;
 
-import parser.Parser;
+import parser.JavaE;
 
 public class Test {
 	public static void main(String args[]) {
-		Parser parser;
+		JavaE parser;
 		try {
-			parser = new Parser("src/test", "test");
+			parser = new JavaE("src/test", "test");
 			parser.read();
 			parser.write();
 		} catch (Exception e) {
