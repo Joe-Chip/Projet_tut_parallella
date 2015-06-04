@@ -4,8 +4,15 @@
 #include "listeCouleurs.h"
 
 
-// Fonction(s) à rentrer dans la structure
-void envoyerLstPointsDifferes2D();// epiphany -> arm (CalculBase.java)
+// Une structure pour PanelDessin, faute de mieux
+typedef struct PanelDessin {
+    double echelleX;
+    double echelleY;
+    double deplX;
+    double deplY;
+    double minXVal;
+    double maxYVal;
+} PanelDessin;
 
 // À déplacer dans une structure PanelDessin
 double echelleX;
@@ -22,10 +29,6 @@ double maxYVal;
 // * faciliter les échanges entre objet Java et objet C
 typedef struct Calcul {
 
-    // Initialement dans panel dessin
-    // Le tableau de valeurs que l'on renvoie
-    int tabPtsY[1000];
-    int ix;
     
     // CalculBase
     double xPrec;
@@ -34,15 +37,20 @@ typedef struct Calcul {
     
     // Attributs
     signed char ordreCycle; // byte java
+    int m;
     int mMax; // 30 ?
     int nMax; // 30
-    int m;
     double a;
     double b;
     double epsilonVal;
     int nombreLignes;
     int masqueIndiceLigne;// = nombreLignes-1
 
+    // Initialement dans panel dessin
+    // Le tableau de valeurs que l'on renvoie
+    int tabPtsY[1000];
+    int ix;
+    
     int lstChoixPlanSelectedIndex;
     double lgN[8][30];// variable, normalement [nombreLignes][mMax];
     double valInit[30];//[nMax];
@@ -85,5 +93,7 @@ Calcul Calcul_creer(
                     long long ctrCalculs
                    );
 
+// Fonction(s) à rentrer dans la structure
+void envoyerLstPointsDifferes2D();// epiphany -> arm (CalculBase.java)
 #endif
 

@@ -21,10 +21,11 @@ void envoyerLstPointsDifferes2D(int k, int n, int j) {
 
 // Fonction pour ouvrir l'Epiphany
 int open_Epiphany (Calcul * monCalcul) {
-    int addr_message = 0x0100; 
-    int addr_flag = 0x1000;
-    int addr_calcul = 0x1004;
-    int addr_echelleX = addr_calcul+sizeof(Calcul);
+    int addr_message = 0x2000; 
+    int addr_flag = 0x2004;
+    int addr_calcul = 0x6000;
+    int addr_panel = 0x4000;
+    int addr_echelleX = addr_panel;
     int addr_echelleY = addr_echelleX + sizeof(double);
     int addr_deplX = addr_echelleY + sizeof(double);
     int addr_deplY = addr_deplX + sizeof(double);
@@ -40,7 +41,7 @@ int open_Epiphany (Calcul * monCalcul) {
     
     // Structure comprenant les infos d'un groupe de coeurs
     e_epiphany_t edev;
-    
+
     // Allumeeeeeeeeeeeez les coeurs
     if (E_OK != e_init(NULL)) {
         fprintf(stderr, "Problème lor de l'initialisation de la carte\n");
@@ -58,7 +59,6 @@ int open_Epiphany (Calcul * monCalcul) {
     if (E_OK != e_get_platform_info(&eplat)) {
         fprintf(stderr, "Problème lors de la récupération des informations sur la plate-forme\n");
     }
-
 
     /*
      * Chargement programme sur coeur
@@ -81,13 +81,13 @@ int open_Epiphany (Calcul * monCalcul) {
     
     usleep(10000);
     printf("valInit[0] = %lf\n", monCalcul->valInit[0]);
+    
+    
     /*
      * Envoi données calcul
      */
-    //Calcul calculDeTest, resultat2;
-    //calculDeTest.m = 123; // test : on envoie 123
-    int flag = 0;
-    int message = -1;
+    int flag = -2;
+    int message = -2;
     e_write(&edev, 0, 0, addr_flag, &flag, sizeof(int));
     e_write(&edev, 0, 0, addr_calcul, monCalcul, sizeof(Calcul));
     e_write(&edev, 0, 0, addr_echelleX, &echelleX, sizeof(double)); 
@@ -109,7 +109,7 @@ int open_Epiphany (Calcul * monCalcul) {
     usleep(10000);
     printf("On a lancé le groupe\n");
     
-    /*while(flag != 1) {
+    while(flag != 1) {
         printf("Programme en cours, veuillez patienter\n");
         printf("flag = %d\n", flag);
         printf("message = %d\n", message);
@@ -117,16 +117,15 @@ int open_Epiphany (Calcul * monCalcul) {
         e_read(&edev, 0, 0, addr_flag, &flag, sizeof(int));
         e_read(&edev, 0, 0, addr_message, &message, sizeof(int));
     }
-    */
+    
     printf("C'est bon !\n");
-    sleep(3);
-    Calcul resultat2; 
-    e_read(&edev, 0, 0, addr_calcul, &resultat2, sizeof(Calcul));
-    printf("m = %d\n", resultat2.m);
-    e_read(&edev, 0, 0, addr_flag, &flag, sizeof(flag));
+    e_read(&edev, 0, 0, addr_calcul, monCalcul, sizeof(Calcul));
+    e_read(&edev, 0, 0, addr_flag, &flag, sizeof(int));
     printf("flag = %d\n", flag);
     e_read(&edev, 0, 0, addr_message, &message, sizeof(int));
     printf("message = %d\n", message);
+
+
     /*
      * Fermeture coeurs
      */
@@ -313,6 +312,9 @@ JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
     deplY = (double) j_deplY;
     minXVal = (double) j_minXVal;
     maxYVal = (double) j_maxYVal;
+
+    printf("echelleX = %lf\n", echelleX);
+    printf("echelleY = %lf\n", echelleY);
   
     // On crée notre calcul
     printf("On va créer le calcul\n");
