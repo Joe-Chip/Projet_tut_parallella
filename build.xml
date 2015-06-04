@@ -16,8 +16,9 @@
         <pathelement location="."/>
     </path>
     <target name="init">
-        <copy includeemptydirs="false" todir=".">
+        <copy includeemptydirs="false" todir=".">       
             <fileset dir=".">
+                <exclude name="**/JavaE/"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
@@ -32,7 +33,7 @@
     <target name="build-subprojects"/>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="." includeantruntime="false" source="${source}" target="${target}">
+        <javac debug="true" debuglevel="${debuglevel}" destdir="." includeantruntime="false" source="${source}" target="${target}" excludes="**/JavaE/**">
             <src path="."/>
             <classpath refid="balayageK2.classpath"/>
         </javac>

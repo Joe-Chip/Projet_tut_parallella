@@ -4,31 +4,14 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h> // pour isnan (=> Double.isNaN) et isinf (=> Double.isInfinite)
 #include "e-lib.h"
 #include "calcul.h"
 #include "listeCouleurs.h"
 
-#define MESSAGE 0x80800100
-#define FLAG_FINI 0x80801000
-#define ADRESSE_CALCUL 0x80801004 // taille de 6336 o aujourd'hui
-
-// Devrait être une structure tout propre
-// PanelDessin
-#define ADRESSE_PANEL ADRESSE_CALCUL+sizeof(Calcul)
-
-// Une structure pour PanelDessin, faute de mieux
-typedef struct PanelDessin {
-    double echelleX;
-    double echelleY;
-    double deplX;
-    double deplY;
-    double minXVal;
-    double maxYVal;
-} PanelDessin;
-
-PanelDessin * panel = (PanelDessin *) ADRESSE_PANEL;
-int * message = (int *) MESSAGE;
-
+int * fini;
+int * message;
+PanelDessin * panel;
 
 // Fonction membres, on devrait les préfixer avec e_ pour
 // éviter les confusions
@@ -37,36 +20,38 @@ int Calcul_egalEpsilonPres(Calcul * This, double x, double y);
 void Calcul_calculM(Calcul * This);
 void Calcul_calcul(Calcul * This);
 
-int * fini = (int *) FLAG_FINI;
+// Pour listeCouleur
+ListeCouleurs New_ListeCouleurs(int nbrCouleurs);
+void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur);
+int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs * lc);
 
 // Implémentation
 int main()
 {
+    fini = (int *) ( ((e_get_coreid()) << 20) + FLAG_FINI );
+    message = (int *) ( ((e_get_coreid()) << 20) + MESSAGE );
+    panel = (PanelDessin *) ( ((e_get_coreid()) << 20) + ADRESSE_PANEL );
+    
     // Notre structure est ici
-    Calcul *monCalcul = (Calcul *) ADRESSE_CALCUL;
-
+    Calcul * monCalcul = (Calcul *) ( ((e_get_coreid()) << 20) + ADRESSE_CALCUL );
+    
     // On rajoute les liens vers nos fonctions locales
     monCalcul->differentEpsilonPres = Calcul_differentEpsilonPres;
     monCalcul->egalEpsilonPres = Calcul_egalEpsilonPres;
     monCalcul->calcul = Calcul_calcul;
     monCalcul->calculM = Calcul_calculM;
-    
-    *message=(int)(monCalcul->mMax);
-    //monCalcul->calcul(monCalcul);
+    (monCalcul->lcPrec).ajouterCouleur = ListeCouleurs_ajouterCouleur;
+    (monCalcul->lcPrec).equals = ListeCouleurs_equals;
+    //*message = (int)(monCalcul);
+    *fini = 0;
+    monCalcul->calcul(monCalcul);
 
-    // En fait la dma semble surtout intéressant pour communiquer entre les coeurs... là ça sert un peu à rien
-    // TODO: regarder comment marche la mémoire partagée
-    //e_dma_copy((unsigned int *) DST_ADDRESS, (unsigned int *) &res, sizeof(int));
-    //e_dma_copy((unsigned int *) FLAG_FINI, (unsigned int *) &machin, sizeof(int));
-    *fini = 2;
+    //*message = monCalcul->valInit[10];// (int) (monCalcul->tabPtsY[1]);
+// Fonction(s) à rentrer dans la structure
+    *fini = 1;
     return EXIT_SUCCESS;
 }
 
-
-// Pour listeCouleur
-ListeCouleurs New_ListeCouleurs(int nbrCouleurs);
-void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur);
-int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs * lc);
 
 
 /////////////////////////////////////////////////////////
@@ -84,7 +69,8 @@ int convertX(double x) {
 // Fonctions membres
 
 void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * lc) {
-    
+   
+    *message = 1000; 
     if ( !((This->xPrec)==x && (This->yPrec)==y && (This->lcPrec).equals(&(This->lcPrec), lc)) ){
         //printf("on entre");
         This->ix = convertX(x);
@@ -99,15 +85,19 @@ void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * l
 }
 
 int Calcul_egalEpsilonPres(Calcul * This, double x, double y) {
+    *message = 1001;
     return (abs(x-y) <= (This->epsilonVal));
 }
 
 int Calcul_differentEpsilonPres(Calcul * This, double x, double y) {
+    *message = 1002;
+    *message = (int) This;
     return (abs(x-y) > (This->epsilonVal));
 }
 
 // Quadratique
 void Calcul_calculM(Calcul * This) {
+    *message = 1003;
     //printf("On est dans calculM\n");
     double valM1 = (This->lgN)[This->indiceIterationCourante][(This->m)-1];//y[i][j-1]
     double valM2 = (This->lgN)[This->indiceIterationPrecedente][(This->m)-1];//y[i-1][j-1]
@@ -141,7 +131,7 @@ fin k
 
 */
 void Calcul_calcul(Calcul * This) {
-    //*message=3;
+    *message=1004;
     
     // Booleens
     char cycleV = 0;
@@ -167,6 +157,7 @@ void Calcul_calcul(Calcul * This) {
         // 100*30*30*30 = 2 700 000 boucles
         //printf("k = %d\n",k);
         for (n = 1; n < This->nMax; n++) {
+            //*message=n;
             //printf("n=%d\n",n);
             This->noIterationCourante = n;
             This->indiceIterationPrecedente = This->indiceIterationCourante;
@@ -175,6 +166,7 @@ void Calcul_calcul(Calcul * This) {
             (This->lgN)[This->indiceIterationCourante][0] = (This->valInit)[n];
 
             for (j = 1; j < This->mMax; j++) {
+                //*message=j;
                 //printf("j = %d\n",j);
                 
                 This->m = j;
@@ -199,6 +191,7 @@ void Calcul_calcul(Calcul * This) {
                     Calcul_differerPoint2D(This, This->a, (This->lgN)[This->indiceIterationCourante][j], &lc); // problème
                     
                     for (m=2; m<(This->mMax); m++) {
+                        //*message = m;
                         int cycle = 2; // cycle 2 uniquement
                         if ((abs((This->lgN)[This->indiceIterationCourante][m]-(This->lgN)[This->indiceIterationSuivante][This->m]) > This->epsilonVal) &&
                             (abs((This->lgN)[This->indiceIterationCourante][m]-(This->lgN)[(This->noIterationCourante-cycle) & (This->masqueIndiceLigne)][m]) <= (This->epsilonVal)) &&
@@ -261,12 +254,13 @@ void Calcul_calcul(Calcul * This) {
         }
     }       
     /* fin ajout */
-    *fini = 1;
+    //*fini = 1;
     //envoyerLstPointsDifferes2D(k,n,j);    
 }
 
 
 void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur) {
+    *message = 1005;
     // je sais pas ce que c'est censé faire
     // j'espère que java a les mêmes priorités que C pour les opérateurs
     // parce que c'est du copié-collé
@@ -274,13 +268,14 @@ void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur) {
 }
 
 int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs * lc) {
+    *message = 1006;
     // TODO: à vérifier
     //printf("Equals?\n");
     return (This->valeur == lc->valeur);
 }
 
 ListeCouleurs New_ListeCouleurs(int nbrCouleurs) {
-    
+    *message = 1007; 
     //printf("[ListeCouleurs]Entrée constructeur\n");
 
     // Alloc

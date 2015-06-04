@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h> // pour isnan (=> Double.isNaN) et isinf (=> Double.isInfinite)
 #include <unistd.h>
 #include "calcul.h"
 #include "balayageK2_Interface.h"
@@ -19,28 +18,13 @@ void envoyerLstPointsDifferes2D(int k, int n, int j) {
 }*/
 
 
-// Fonction pour ouvrir l'Epiphany
-int open_Epiphany (Calcul * monCalcul) {
-    int addr_message = 0x0100; 
-    int addr_flag = 0x1000;
-    int addr_calcul = 0x1004;
-    int addr_echelleX = addr_calcul+sizeof(Calcul);
-    int addr_echelleY = addr_echelleX + sizeof(double);
-    int addr_deplX = addr_echelleY + sizeof(double);
-    int addr_deplY = addr_deplX + sizeof(double);
-    int addr_minXVal = addr_deplY + sizeof(double);
-    int addr_maxYVal = addr_minXVal + sizeof(double);
-    
-    /*
-     * Initialisation
-     */
 
-    // Structure contenant les infos de la plateforme Epiphany
-    e_platform_t eplat;
-    
-    // Structure comprenant les infos d'un groupe de coeurs
-    e_epiphany_t edev;
-    
+
+/*
+ * Initialisation
+ */
+int init_Epiphany() {
+
     // Allumeeeeeeeeeeeez les coeurs
     if (E_OK != e_init(NULL)) {
         fprintf(stderr, "Problème lor de l'initialisation de la carte\n");
@@ -53,26 +37,46 @@ int open_Epiphany (Calcul * monCalcul) {
         return EXIT_FAILURE;
     }
 
+    return EXIT_SUCCESS;
+}
 
+
+int ouvrir_tous_coeurs_Epiphany(e_epiphany_t * edev, e_platform_t * eplat) {
+    
     // Recuperer les infos de la plateforme
-    if (E_OK != e_get_platform_info(&eplat)) {
+    if (E_OK != e_get_platform_info(eplat)) {
         fprintf(stderr, "Problème lors de la récupération des informations sur la plate-forme\n");
+        return EXIT_FAILURE;
     }
 
-
-    /*
-     * Chargement programme sur coeur
-     */
-
-    if (E_OK != e_open(&edev, 0, 0, 1, 1)) {
-        fprintf(stderr, "Erreur lors de la définition du groupe de trvail\n");
+    if (E_OK != e_open(edev, 0, 0, eplat->rows, eplat->cols)) {
+        fprintf(stderr, "Erreur lors de la définition du groupe de travail\n");
         return EXIT_FAILURE;
     }
     
-    if (E_OK != e_reset_group(&edev)) {
+    if (E_OK != e_reset_group(edev)) {
         fprintf(stderr, "Erreur lors de la réinitialisation du groupe de travail\n");
         return EXIT_FAILURE;
     }
+    
+    return EXIT_SUCCESS;
+}
+
+// Fonction pour ouvrir l'Epiphany
+int open_Epiphany (Calcul * monCalcul) {
+    int addr_echelleX = ADRESSE_PANEL;
+    int addr_echelleY = addr_echelleX + sizeof(double);
+    int addr_deplX = addr_echelleY + sizeof(double);
+    int addr_deplY = addr_deplX + sizeof(double);
+    int addr_minXVal = addr_deplY + sizeof(double);
+    int addr_maxYVal = addr_minXVal + sizeof(double);
+    
+    e_epiphany_t edev;
+    e_platform_t eplat;
+    
+    init_Epiphany();
+    
+    ouvrir_tous_coeurs_Epiphany(&edev, &eplat);
 
     if (E_OK != e_load("C/e_calcul.srec", &edev, 0, 0, E_FALSE)) {
         fprintf(stderr, "Erreur chargement coeur\n");
@@ -81,22 +85,22 @@ int open_Epiphany (Calcul * monCalcul) {
     
     usleep(10000);
     printf("valInit[0] = %lf\n", monCalcul->valInit[0]);
+    
+    
     /*
      * Envoi données calcul
      */
-    //Calcul calculDeTest, resultat2;
-    //calculDeTest.m = 123; // test : on envoie 123
-    int flag = 0;
-    int message = -1;
-    e_write(&edev, 0, 0, addr_flag, &flag, sizeof(int));
-    e_write(&edev, 0, 0, addr_calcul, monCalcul, sizeof(Calcul));
+    int flag = -2;
+    int message = -2;
+    e_write(&edev, 0, 0, FLAG_FINI, &flag, sizeof(int));
+    e_write(&edev, 0, 0, ADRESSE_CALCUL, monCalcul, sizeof(Calcul));
     e_write(&edev, 0, 0, addr_echelleX, &echelleX, sizeof(double)); 
     e_write(&edev, 0, 0, addr_echelleY, &echelleY, sizeof(double));
     e_write(&edev, 0, 0, addr_deplX, &deplX, sizeof(double)); 
     e_write(&edev, 0, 0, addr_deplY, &deplY, sizeof(double)); 
     e_write(&edev, 0, 0, addr_minXVal, &minXVal, sizeof(double)); 
     e_write(&edev, 0, 0, addr_maxYVal, &maxYVal, sizeof(double)); 
-    e_write(&edev, 0, 0, addr_message, &message, sizeof(int));
+    e_write(&edev, 0, 0, MESSAGE, &message, sizeof(int));
 
     /*
      * Lancement programme + réception résultat
@@ -109,24 +113,23 @@ int open_Epiphany (Calcul * monCalcul) {
     usleep(10000);
     printf("On a lancé le groupe\n");
     
-    /*while(flag != 1) {
+    while(flag != 1) {
         printf("Programme en cours, veuillez patienter\n");
         printf("flag = %d\n", flag);
-        printf("message = %d\n", message);
+        printf("message = 0x%x (%d)\n", message, message);
         sleep(1);
-        e_read(&edev, 0, 0, addr_flag, &flag, sizeof(int));
-        e_read(&edev, 0, 0, addr_message, &message, sizeof(int));
+        e_read(&edev, 0, 0, FLAG_FINI, &flag, sizeof(int));
+        e_read(&edev, 0, 0, MESSAGE, &message, sizeof(int));
     }
-    */
+    
     printf("C'est bon !\n");
-    sleep(3);
-    Calcul resultat2; 
-    e_read(&edev, 0, 0, addr_calcul, &resultat2, sizeof(Calcul));
-    printf("m = %d\n", resultat2.m);
-    e_read(&edev, 0, 0, addr_flag, &flag, sizeof(flag));
+    e_read(&edev, 0, 0, ADRESSE_CALCUL, monCalcul, sizeof(Calcul));
+    e_read(&edev, 0, 0, FLAG_FINI, &flag, sizeof(int));
     printf("flag = %d\n", flag);
-    e_read(&edev, 0, 0, addr_message, &message, sizeof(int));
-    printf("message = %d\n", message);
+    e_read(&edev, 0, 0, MESSAGE, &message, sizeof(int));
+    printf("message = %x\n", message);
+
+
     /*
      * Fermeture coeurs
      */
@@ -143,42 +146,6 @@ int open_Epiphany (Calcul * monCalcul) {
 }
 
 
-// rajouter les arguments
-// les attributs sont initialisés côté Java
-// on ne fait que les copier ici
-/*    double xPrec;*/
-/*    double yPrec;*/
-/*    ListeCouleurs * lcPrec;*/
-/*    */
-/*    // Attributs*/
-/*    char ordreCycle; // byte java*/
-/*    int mMax; // 30 ?*/
-/*    int nMax; // 30*/
-/*    int m; // oui, bien sûr*/
-/*    double a; // ouiiiiiiiiiiii*/
-/*    double b;*/
-/*    double epsilonVal;*/
-/*    int nombreLignes;*/
-/*    int masqueIndiceLigne;// = nombreLignes-1*/
-
-/*    int lstChoixPlanSelectedIndex;*/
-/*    double ** lgN;//[nombreLignes][mMax];*/
-/*    double * valInit;//[nMax];*/
-
-/*    int indiceIterationCourante;*/
-/*    int indiceIterationSuivante;*/
-/*    int indiceIterationPrecedente;*/
-/*    int noIterationCourante;*/
-/*    */
-/*    int arretRunner;//booleen*/
-/*    */
-/*    long ctrCalculs;// y avait un static en java...*/
-
-/*    // Attributs "privés"*/
-/*    int ctrV;*/
-/*    int ctrH;*/
-/*    int ctrD;*/
-/*    int ctrG;*/
 Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
                     int mMax, int nMax, int m, int nombreLignes, int masqueIndiceLigne,
                     int lstChoixPlanSelectedIndex, long long ctrCalculs) {
@@ -234,24 +201,6 @@ Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
 
     return This;    
 }
-
-// tests
-//FIXME: libérer données!
-
-jobject NewDouble(JNIEnv* env, jdouble value)
-{
-    jclass cls = (*env)->FindClass(env, "java/lang/Double");
-    jmethodID methodID = (*env)->GetMethodID(env, cls, "<init>", "(D)V");
-    return (*env)->NewObject(env, cls, methodID, value);
-}
-
-jobject NewInteger(JNIEnv* env, jint value)
-{
-    jclass cls = (*env)->FindClass(env, "java/lang/Integer");
-    jmethodID methodID = (*env)->GetMethodID(env, cls, "<init>", "(I)V");
-    return (*env)->NewObject(env, cls, methodID, value);
-}
-
 
 JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
     JNIEnv *env,
@@ -313,6 +262,9 @@ JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
     deplY = (double) j_deplY;
     minXVal = (double) j_minXVal;
     maxYVal = (double) j_maxYVal;
+
+    printf("echelleX = %lf\n", echelleX);
+    printf("echelleY = %lf\n", echelleY);
   
     // On crée notre calcul
     printf("On va créer le calcul\n");
