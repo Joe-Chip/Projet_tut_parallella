@@ -18,15 +18,7 @@ void envoyerLstPointsDifferes2D(int k, int n, int j) {
     printf("j = %d\n", j);
 }*/
 
-/*
-    // Structure contenant les infos de la plateforme Epiphany
-    e_platform_t eplat;
-    
-    // Recuperer les infos de la plateforme
-    if (E_OK != e_get_platform_info(&eplat)) {
-        fprintf(stderr, "Problème lors de la récupération des informations sur la plate-forme\n");
-    }
-*/
+
 
 
 /*
@@ -49,6 +41,28 @@ int init_Epiphany() {
     return EXIT_SUCCESS;
 }
 
+
+int ouvrir_tous_coeurs_Epiphany(e_epiphany_t * edev, e_platform_t * eplat) {
+    
+    // Recuperer les infos de la plateforme
+    if (E_OK != e_get_platform_info(eplat)) {
+        fprintf(stderr, "Problème lors de la récupération des informations sur la plate-forme\n");
+        return EXIT_FAILURE;
+    }
+
+    if (E_OK != e_open(edev, 0, 0, eplat->rows, eplat->cols)) {
+        fprintf(stderr, "Erreur lors de la définition du groupe de travail\n");
+        return EXIT_FAILURE;
+    }
+    
+    if (E_OK != e_reset_group(edev)) {
+        fprintf(stderr, "Erreur lors de la réinitialisation du groupe de travail\n");
+        return EXIT_FAILURE;
+    }
+    
+    return EXIT_SUCCESS;
+}
+
 // Fonction pour ouvrir l'Epiphany
 int open_Epiphany (Calcul * monCalcul) {
     int addr_message = 0x2000; 
@@ -63,22 +77,11 @@ int open_Epiphany (Calcul * monCalcul) {
     int addr_maxYVal = addr_minXVal + sizeof(double);
     
     e_epiphany_t edev;
+    e_platform_t eplat;
     
     init_Epiphany();
-
-    /*
-     * Chargement programme sur coeur
-     */
-
-    if (E_OK != e_open(&edev, 0, 0, 1, 1)) {
-        fprintf(stderr, "Erreur lors de la définition du groupe de trvail\n");
-        return EXIT_FAILURE;
-    }
     
-    if (E_OK != e_reset_group(&edev)) {
-        fprintf(stderr, "Erreur lors de la réinitialisation du groupe de travail\n");
-        return EXIT_FAILURE;
-    }
+    ouvrir_tous_coeurs_Epiphany(&edev, &eplat);
 
     if (E_OK != e_load("C/e_calcul.srec", &edev, 0, 0, E_FALSE)) {
         fprintf(stderr, "Erreur chargement coeur\n");
