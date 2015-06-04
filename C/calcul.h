@@ -3,6 +3,11 @@
 
 #include "listeCouleurs.h"
 
+#define MESSAGE 0x2000 // Bank1
+#define FLAG_FINI 0x2004
+#define ADRESSE_PANEL 0x4000 // Bank2
+#define ADRESSE_CALCUL 0x6000 // taille autour de 6ko
+
 
 // Une structure pour PanelDessin, faute de mieux
 typedef struct PanelDessin {

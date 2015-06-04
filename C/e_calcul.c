@@ -4,23 +4,14 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h> // pour isnan (=> Double.isNaN) et isinf (=> Double.isInfinite)
 #include "e-lib.h"
 #include "calcul.h"
 #include "listeCouleurs.h"
 
-#define MESSAGE 0x80802000 // Bank1
-#define FLAG_FINI 0x80802004
-#define ADRESSE_CALCUL 0x80806000 // taille de 6336 o aujourd'hui
-
-// Devrait être une structure tout propre
-// PanelDessin
-#define ADRESSE_PANEL 0x80804000 // Bank2
-
-//int * fini2 __attribute__ ((section (".data_bank3")));
-//int * message2 __attribute__ ((section (".data_bank3")));
-int * fini = (int *) FLAG_FINI;
-int * message = (int *) MESSAGE;
-PanelDessin * panel = (PanelDessin *) ADRESSE_PANEL;
+int * fini;
+int * message;
+PanelDessin * panel;
 
 // Fonction membres, on devrait les préfixer avec e_ pour
 // éviter les confusions
@@ -37,8 +28,12 @@ int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs * lc);
 // Implémentation
 int main()
 {
+    fini = (int *) ( ((e_get_coreid()) << 20) + FLAG_FINI );
+    message = (int *) ( ((e_get_coreid()) << 20) + MESSAGE );
+    panel = (PanelDessin *) ( ((e_get_coreid()) << 20) + ADRESSE_PANEL );
+    
     // Notre structure est ici
-    Calcul *monCalcul = (Calcul *) ADRESSE_CALCUL;
+    Calcul * monCalcul = (Calcul *) ( ((e_get_coreid()) << 20) + ADRESSE_CALCUL );
     
     // On rajoute les liens vers nos fonctions locales
     monCalcul->differentEpsilonPres = Calcul_differentEpsilonPres;
@@ -47,7 +42,7 @@ int main()
     monCalcul->calculM = Calcul_calculM;
     (monCalcul->lcPrec).ajouterCouleur = ListeCouleurs_ajouterCouleur;
     (monCalcul->lcPrec).equals = ListeCouleurs_equals;
-    
+    //*message = (int)(monCalcul);
     *fini = 0;
     monCalcul->calcul(monCalcul);
 
@@ -96,6 +91,7 @@ int Calcul_egalEpsilonPres(Calcul * This, double x, double y) {
 
 int Calcul_differentEpsilonPres(Calcul * This, double x, double y) {
     *message = 1002;
+    *message = (int) This;
     return (abs(x-y) > (This->epsilonVal));
 }
 

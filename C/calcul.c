@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h> // pour isnan (=> Double.isNaN) et isinf (=> Double.isInfinite)
 #include <unistd.h>
 #include "calcul.h"
 #include "balayageK2_Interface.h"
@@ -65,11 +64,7 @@ int ouvrir_tous_coeurs_Epiphany(e_epiphany_t * edev, e_platform_t * eplat) {
 
 // Fonction pour ouvrir l'Epiphany
 int open_Epiphany (Calcul * monCalcul) {
-    int addr_message = 0x2000; 
-    int addr_flag = 0x2004;
-    int addr_calcul = 0x6000;
-    int addr_panel = 0x4000;
-    int addr_echelleX = addr_panel;
+    int addr_echelleX = ADRESSE_PANEL;
     int addr_echelleY = addr_echelleX + sizeof(double);
     int addr_deplX = addr_echelleY + sizeof(double);
     int addr_deplY = addr_deplX + sizeof(double);
@@ -97,15 +92,15 @@ int open_Epiphany (Calcul * monCalcul) {
      */
     int flag = -2;
     int message = -2;
-    e_write(&edev, 0, 0, addr_flag, &flag, sizeof(int));
-    e_write(&edev, 0, 0, addr_calcul, monCalcul, sizeof(Calcul));
+    e_write(&edev, 0, 0, FLAG_FINI, &flag, sizeof(int));
+    e_write(&edev, 0, 0, ADRESSE_CALCUL, monCalcul, sizeof(Calcul));
     e_write(&edev, 0, 0, addr_echelleX, &echelleX, sizeof(double)); 
     e_write(&edev, 0, 0, addr_echelleY, &echelleY, sizeof(double));
     e_write(&edev, 0, 0, addr_deplX, &deplX, sizeof(double)); 
     e_write(&edev, 0, 0, addr_deplY, &deplY, sizeof(double)); 
     e_write(&edev, 0, 0, addr_minXVal, &minXVal, sizeof(double)); 
     e_write(&edev, 0, 0, addr_maxYVal, &maxYVal, sizeof(double)); 
-    e_write(&edev, 0, 0, addr_message, &message, sizeof(int));
+    e_write(&edev, 0, 0, MESSAGE, &message, sizeof(int));
 
     /*
      * Lancement programme + réception résultat
@@ -121,18 +116,18 @@ int open_Epiphany (Calcul * monCalcul) {
     while(flag != 1) {
         printf("Programme en cours, veuillez patienter\n");
         printf("flag = %d\n", flag);
-        printf("message = %d\n", message);
+        printf("message = 0x%x (%d)\n", message, message);
         sleep(1);
-        e_read(&edev, 0, 0, addr_flag, &flag, sizeof(int));
-        e_read(&edev, 0, 0, addr_message, &message, sizeof(int));
+        e_read(&edev, 0, 0, FLAG_FINI, &flag, sizeof(int));
+        e_read(&edev, 0, 0, MESSAGE, &message, sizeof(int));
     }
     
     printf("C'est bon !\n");
-    e_read(&edev, 0, 0, addr_calcul, monCalcul, sizeof(Calcul));
-    e_read(&edev, 0, 0, addr_flag, &flag, sizeof(int));
+    e_read(&edev, 0, 0, ADRESSE_CALCUL, monCalcul, sizeof(Calcul));
+    e_read(&edev, 0, 0, FLAG_FINI, &flag, sizeof(int));
     printf("flag = %d\n", flag);
-    e_read(&edev, 0, 0, addr_message, &message, sizeof(int));
-    printf("message = %d\n", message);
+    e_read(&edev, 0, 0, MESSAGE, &message, sizeof(int));
+    printf("message = %x\n", message);
 
 
     /*
@@ -151,42 +146,6 @@ int open_Epiphany (Calcul * monCalcul) {
 }
 
 
-// rajouter les arguments
-// les attributs sont initialisés côté Java
-// on ne fait que les copier ici
-/*    double xPrec;*/
-/*    double yPrec;*/
-/*    ListeCouleurs * lcPrec;*/
-/*    */
-/*    // Attributs*/
-/*    char ordreCycle; // byte java*/
-/*    int mMax; // 30 ?*/
-/*    int nMax; // 30*/
-/*    int m; // oui, bien sûr*/
-/*    double a; // ouiiiiiiiiiiii*/
-/*    double b;*/
-/*    double epsilonVal;*/
-/*    int nombreLignes;*/
-/*    int masqueIndiceLigne;// = nombreLignes-1*/
-
-/*    int lstChoixPlanSelectedIndex;*/
-/*    double ** lgN;//[nombreLignes][mMax];*/
-/*    double * valInit;//[nMax];*/
-
-/*    int indiceIterationCourante;*/
-/*    int indiceIterationSuivante;*/
-/*    int indiceIterationPrecedente;*/
-/*    int noIterationCourante;*/
-/*    */
-/*    int arretRunner;//booleen*/
-/*    */
-/*    long ctrCalculs;// y avait un static en java...*/
-
-/*    // Attributs "privés"*/
-/*    int ctrV;*/
-/*    int ctrH;*/
-/*    int ctrD;*/
-/*    int ctrG;*/
 Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
                     int mMax, int nMax, int m, int nombreLignes, int masqueIndiceLigne,
                     int lstChoixPlanSelectedIndex, long long ctrCalculs) {
