@@ -21,18 +21,8 @@
     <xsd:complexType>
       <xsd:choice>
         <xsd:element ref="primitive" />
-	<xsd:element ref="type" />
+		<xsd:element ref="type" />
       </xsd:choice>
-      <xsd:attribute name="type" use="required">
-        <xsd:simpleType>
-	  <xsd:restriction base="xsd:token">
-       	    <xsd:enumeration value="array" />
-	    <xsd:enumeration value="Vector" />
-	    <xsd:enumeration value="ArrayList" />
-	    <xsd:enumeration value="List" />
-          </xsd:restriction>
-    	</xsd:simpleType>
-      </xsd:attribute>
       <xsd:attribute name="size" type="xsd:unsignedInt" use="required" />
     </xsd:complexType>
   </xsd:element>

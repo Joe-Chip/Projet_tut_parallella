@@ -5,7 +5,7 @@
 	xsi:noNamespaceSchemaLocation="../xml/ejava.xsd">
 <object name="Troc" fqn="test.Troc">
   <field name="tab">
-    <collection size="20" type="array">
+    <collection size="20">
       <primitive>double</primitive>
     </collection>
   </field>
@@ -15,12 +15,14 @@
     <primitive>int</primitive>
   </field>
   <field name="tab">
-    <collection size="6" type="array">
+    <collection size="6">
       <primitive>boolean</primitive>
     </collection>
   </field>
-  <field name="troc">
-    <type object="Troc"/>
+  <field name="trocs">
+  	<collection size="2">
+    	<type object="Troc"/>
+    </collection>
   </field>
 </object>
 <object name="Machin" fqn="test.Machin">
@@ -32,7 +34,7 @@
   </field>
 </object>
 
-<module name="Main" path="ici">
+<module name="Main" path="src/test">
   <argument name="a" type="Machin"/>
   <result name="r" type="Truc"/>
 </module>

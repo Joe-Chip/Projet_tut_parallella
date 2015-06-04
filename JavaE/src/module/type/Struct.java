@@ -20,10 +20,17 @@ public class Struct implements Type {
 	
 	public static Struct namedStruct(String name, String fQN) throws MultipleDeclaration {
 		Struct s = objects.get(name);
-		if (objects.containsKey(name))
-			throw new MultipleDeclaration(name, fQN);
-		s = new Struct(name, fQN);
-		objects.put(name, s);
+		if (s == null) {
+			s = new Struct(name);
+			objects.put(name, s);
+			s.fullyQualifiedName = fQN;
+		}
+		else {
+			if (s.fullyQualifiedName == null)
+				s.fullyQualifiedName = fQN;
+			else if (!s.fullyQualifiedName.equals(fQN))
+				throw new MultipleDeclaration(name, fQN);
+		}
 		return s;
 	}
 	public static Struct namedStruct(String name) {
@@ -36,9 +43,9 @@ public class Struct implements Type {
 	private String header;
 	private int size;
 	
-	private Struct(String name, String fQN) {
+	private Struct(String name) {
 		this.name = name;
-		this.fullyQualifiedName = fQN;
+		this.fullyQualifiedName = null;
 		this.fields = new HashMap<String, Type>();
 		this.header = null;
 		this.size = -1;
@@ -49,6 +56,10 @@ public class Struct implements Type {
 		if (old != null)
 			throw new MultipleDeclaration(name, this.name);
 		else this.fields.put(name, type);
+	}
+	
+	public Set<Entry<String,Type>> getFields() {
+		return this.fields.entrySet();
 	}
 	
 	public String getName() {
@@ -75,7 +86,7 @@ public class Struct implements Type {
 					throw new CircularReference(this.name, type);
 			reference.add(type);
 			size += e.getValue().getSize();
-			header.append("\t" + e.getValue().base() + " " + e.getKey() + e.getValue().suffix() + ";\n");
+			header.append("\t" + e.getValue().prefix(e.getKey()) + e.getValue().base() + " " + e.getKey() + e.getValue().suffix() + ";\n");
 		}
 		header.append("};");
 		this.size = size;
@@ -96,9 +107,14 @@ public class Struct implements Type {
 	}
 	
 	public String getFullyQualifiedName() {
-		return this.fullyQualifiedName;
+		return "L" + this.fullyQualifiedName;
 	}
-
+	
+	@Override
+	public String prefix(String name) {
+		return "";
+	}
+	
 	@Override
 	public String base() {
 		return this.name;
@@ -108,5 +124,41 @@ public class Struct implements Type {
 	public String suffix() {
 		return "";
 	}
+	@Override
+	public String getJNI() {
+		return "jobject";
+	}
+	
+	@Override
+	public String fulfill(String indent, String name, String object, String id) {
+		StringBuilder str = new StringBuilder();
+		String fname = name.replace(".", "_").replace("[", "_").replace("]", "_");
+		if (id != null) {
+			str.append(indent + "jobject " + fname + " = (*env)->GetObjectField(env, " + object + ", " + id + ");\n");
+			object = fname;
+		}
+		for (Entry<String, Type> e : this.getFields()) {
+			String field = e.getKey();
+			Type type = e.getValue();
+			str.append(type.fulfill(indent, name + "." + field, object, this.base().toLowerCase() + "_" + field + "ID") + "\n");
+		}
+		return str.toString();
+	}
+	@Override
+	public String extract(String indent, String name, String object, String id) {
+		StringBuilder str = new StringBuilder();
+		String fname = name.replace(".", "_").replace("[", "_").replace("]", "_");
+		if (id != null) {
+			str.append(indent + "jobject " + fname + " = (*env)->GetObjectField(env, " + object + ", " + id + ");\n");
+			object = fname;
+		}
+		for (Entry<String, Type> e : this.getFields()) {
+			String field = e.getKey();
+			Type type = e.getValue();
+			str.append(type.extract(indent, name + "." + field, object, this.base().toLowerCase() + "_" + field + "ID") + "\n");
+		}
+		return str.toString();
+	}
+	
 	
 }

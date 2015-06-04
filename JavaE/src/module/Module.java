@@ -8,7 +8,6 @@ import java.util.Set;
 import exception.MultipleDeclaration;
 
 import module.type.Struct;
-import module.type.Type;
 
 public class Module {
 	static public HashMap<String,Module> modules;
@@ -29,15 +28,23 @@ public class Module {
 	private String name;
 	private String path;
 	private HashSet<String> ios;
-	private HashMap<String,Type> arguments;
-	private HashMap<String,Type> results;
+	private HashMap<String,Struct> arguments;
+	private HashMap<String,Struct> results;
 	
 	private Module(String name, String path) {
 		this.name = name;
 		this.path = path;
 		this.ios = new HashSet<String>();
-		this.arguments = new HashMap<String,Type>();
-		this.results = new HashMap<String,Type>();
+		this.arguments = new HashMap<String,Struct>();
+		this.results = new HashMap<String,Struct>();
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public String getPath() {
+		return this.path;
 	}
 	
 	public void addArg(String name, Struct type) throws MultipleDeclaration {
@@ -47,7 +54,7 @@ public class Module {
 		arguments.put(name,type);
 	}
 	
-	public Set<Entry<String, Type>> getArgs() {
+	public Set<Entry<String, Struct>> getArgs() {
 		return this.arguments.entrySet();
 	}
 	
@@ -58,28 +65,44 @@ public class Module {
 		results.put(name,type);
 	}
 	
-	public Set<Entry<String, Type>> getRess() {
+	public Set<Entry<String, Struct>> getRess() {
 		return this.results.entrySet();
 	}
 	
 	public Set<Struct> getObjects() {
 		HashSet<Struct> set = new HashSet<Struct>();
-		for (Entry<String,Type> object : this.arguments.entrySet())
-			set.add((Struct) object.getValue());
-		for (Entry<String,Type> object : this.results.entrySet())
-			set.add((Struct) object.getValue());
+		for (Entry<String,Struct> object : this.arguments.entrySet())
+			set.add(object.getValue());
+		for (Entry<String,Struct> object : this.results.entrySet())
+			set.add(object.getValue());
 		return set;
 	}
 	
 	public String toString() {
-		StringBuilder str = new StringBuilder(this.name + " " + this.path + "\n");
-		for (Entry<String,Type> e : arguments.entrySet()) {
-			str.append("=> " + e.getValue().base() + " " + e.getKey() + "\n");
-		}
-		for (Entry<String,Type> e : results.entrySet()) {
-			str.append("<= " + e.getValue().base() + " " + e.getKey() + "\n");
-		}
+		StringBuilder str = new StringBuilder(this.name);
 		return str.toString();
+	}
+	
+	public String getCallCSignature(String name) {
+		StringBuilder sig = new StringBuilder();
+		sig.append("JNIEXPORT jint JNICALL Java_" + name + "_call" + this.name + "\n");
+		sig.append("\t(JNIEnv * env, jobject this");
+		for (String arg : this.arguments.keySet()) {
+			sig.append(", jobject " + arg);
+		}
+		sig.append(")");
+		return sig.toString();
+	}
+	
+	public String getJoinCSignature(String name) {
+		StringBuilder sig = new StringBuilder();
+		sig.append("JNIEXPORT jint JNICALL Java_" + name + "_join" + this.name + "\n");
+		sig.append("\t(JNIEnv * env, jobject this, jint id");
+		for (String res : this.results.keySet()) {
+			sig.append(", jobject " + res);
+		}
+		sig.append(")");
+		return sig.toString();
 	}
 	
 }
