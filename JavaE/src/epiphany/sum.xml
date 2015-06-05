@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../xml/ejava.xsd">
+<object name="Coordonnee" fqn="epiphany.Coordonnee">
+  <field name="x">
+    <primitive>double</primitive>
+  </field>
+  <field name="y">
+    <primitive>double</primitive>
+  </field>
+</object>
+<object name="Espace" fqn="epiphany.Espace">
+  <field name="points">
+    <collection size="50">
+      <type object="Coordonnee"/>
+    </collection>
+  </field>
+</object>
+<object name="MInt" fqn="epiphany.Int">
+  <field name="i">
+    <primitive>int</primitive>
+  </field>
+</object>
+
+<module name="Somme" path="src/epiphany">
+  <argument name="minIter" type="MInt"/>
+  <argument name="maxIter" type="MInt"/>
+  <argument name="data" type="Espace"/>
+  <result name="convergence" type="Coordonnee"/>
+</module>
+
+</package>
