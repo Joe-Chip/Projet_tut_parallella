@@ -14,6 +14,22 @@ extern "C" {
  */
 JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul
   (JNIEnv *, jclass, jobject, jdoubleArray, jdouble, jdouble, jdouble, jdouble, jdouble, jdouble);
+    
+/*
+ * Class:     balayageK2_Interface
+ * Method:    einit
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_balayageK2_Interface_einit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     balayageK2_Interface
+ * Method:    eclose
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_balayageK2_Interface_eclose
+  (JNIEnv *, jclass);
 
 #ifdef __cplusplus
 }

@@ -6,19 +6,7 @@
 #include "e-hal.h" // Bibliotheque hote pour Epiphany
 
 
-// Fonctions indépendantes /////////////////////////////////
-/*
-void envoyerLstPointsDifferes2D(int k, int n, int j) {
-    // TODO 
-    // là on envoie les données vers le proc arm
-    //test
-    printf("k = %d\n", k);
-    printf("n = %d\n", n);
-    printf("j = %d\n", j);
-}*/
-
-
-
+e_epiphany_t ** cores;
 
 /*
  * Initialisation
@@ -153,7 +141,6 @@ Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
     int i;
     
     //printf("On crée un calcul\n");
-    // Initialisation
     This.a = a;
     This.b = b;
     This.epsilonVal = epsilonVal;
@@ -165,41 +152,57 @@ Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
     This.masqueIndiceLigne = masqueIndiceLigne;printf("nMax = %d\n", masqueIndiceLigne);
     This.lstChoixPlanSelectedIndex = lstChoixPlanSelectedIndex;
     This.ctrCalculs = ctrCalculs;
-    //This.valInit = valInit;// à copier plutôt
-    //This.lcPrec = NULL;
     
     for(i = 0; i < nMax; i++) {
         This.valInit[i] = valInit[i];
     }
     
-    // Pas besoin de récupérer lgN, on va l'initialiser de toute façon
-    
-/*    This.lgN = malloc(nombreLignes*sizeof(double *));*/
-
-/*    if (This.lgN == NULL) {*/
-/*        printf("Il y a un gros problème\n");*/
-/*        exit(1);*/
-/*    }*/
-    
-/*    for(i = 0; i<nombreLignes; i++) {*/
-/*        This.lgN[i] = malloc(mMax*sizeof(double));*/
-/*        if (This.lgN[i] == NULL) {*/
-/*            printf("Il y a un gros problème\n");*/
-/*            exit(1);*/
-/*        }*/
-/*    }*/
-    
     for(i = 0; i < 1000; i++) {
         This.tabPtsY[i] = -1;
     }
 
-    // Méthodes : à faire dans e_calcul.c
-    //This.differentEpsilonPres = Calcul_differentEpsilonPres;
-    //This.egalEpsilonPres = Calcul_egalEspilonPres;
-    //This.calcul = Calcul_calcul;
-    //This.calculM = Calcul_calculM;
-
     return This;    
+}
+
+
+// Fonctions visibles par JNI ///////////////////////////////////////
+
+JNIEXPORT jint JNICALL Java_balayageK2_Interface_einit
+    (JNIEnv * env, jclass thisClass) {
+
+    init_Epiphany();
+    
+    if (E_OK != e_get_platform_info(eplat)) {
+        fprintf(stderr, "Problème lors de la récupération des informations sur la plate-forme\n");
+        return (jint) EXIT_FAILURE;
+    }
+
+    cores = malloc(platform.rows*platform.cols*sizeof(e_epiphany_t *));
+    int r, c;
+    for (r = 0; r < platform.rows; r++) {
+        for (c = 0; c < platform.cols; c++) {
+            cores[r*platform.cols+c] = NULL;
+        }
+    }
+    
+    return (jint) EXIT_SUCCESS;
+}
+
+JNIEXPORT void JNICALL Java_balayageK2_Interface_eclose
+    (JNIEnv * env, jclass thisClass) {
+    
+    int r, c;
+    for (r = 0; r < platform.rows; r++) {
+        for (c = 0; c < platform.cols; c++) {
+            if (cores[r*platform.cols+c] != NULL) {
+                e_close(cores[r*platform.cols+c]);
+                free(cores[r*platform.cols+c]);
+            }
+        }
+    }
+    free(cores);
+    e_finalize();
+
 }
 
 JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
@@ -207,17 +210,6 @@ JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
     jclass thisClass,
     jobject obj,
     jdoubleArray j_valInit,
-    /*
-    jdouble a,
-    jdouble b,
-    jdouble epsilonVal,
-    jint mMax,
-    jint nMax,
-    jint m,
-    jint nombreLignes,
-    jint masqueIndiceLigne,
-    jint lstChoixPlanSelectedIndex,
-    jlong ctrCalculs,*/
     jdouble j_echelleX,
     jdouble j_echelleY,
     jdouble j_deplX,
@@ -308,8 +300,6 @@ JNIEXPORT jintArray JNICALL Java_balayageK2_Interface_tests_1calcul(
     // On libère les données java
     (*env)->ReleaseDoubleArrayElements(env, j_valInit,valInitC, JNI_ABORT);
 
-    // Nettoyage
-     
     return result;
 
 }

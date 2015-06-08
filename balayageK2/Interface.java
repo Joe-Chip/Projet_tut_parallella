@@ -10,19 +10,7 @@ public class Interface {
 	
 	static public native int[] tests_calcul(
         CalculCascade2D objet,
-		double[] valInit,
-        /*
-		double a,
-		double b,
-		double epsilonVal,
-	    int mMax,
-	    int nMax,
-	    int m,
-	    int nombreLignes,
-	    int masqueIndiceLigne,
-	    int lstChoixPlanSelectedIndex,
-	    //long ctrCalculs,
-        */
+	    double[] valInit,
 	    double echelleX,
 	    double echelleY,
 	    double deplX,
@@ -30,6 +18,10 @@ public class Interface {
 	    double maxXVal,
 	    double maxYVal
 	);
+
+        static public native int einit();
+
+        static public native void eclose();
 	
 	static public void rien() {
 		
