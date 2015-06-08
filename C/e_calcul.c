@@ -74,7 +74,9 @@ void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * l
     if ( !((This->xPrec)==x && (This->yPrec)==y && (This->lcPrec).equals(&(This->lcPrec), lc)) ){
         //printf("on entre");
         This->ix = convertX(x);
-        This->tabPtsY[convertY(y)] = lc->nbrCouleurs;
+        
+        if ((convertY(y) >= 0) && (convertY(y) < 1000))
+            This->tabPtsY[convertY(y)] = lc->nbrCouleurs;
         
         This->xPrec = x;
         This->yPrec = y;
