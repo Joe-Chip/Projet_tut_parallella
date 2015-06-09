@@ -23,7 +23,7 @@ void Calcul_calcul(Calcul * This);
 // Pour listeCouleur
 ListeCouleurs New_ListeCouleurs(int nbrCouleurs);
 void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur);
-int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs * lc);
+int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs lc);
 
 // Implémentation
 int main()
@@ -68,20 +68,21 @@ int convertX(double x) {
 
 // Fonctions membres
 
-void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs * lc) {
+void Calcul_differerPoint2D(Calcul * This, double x, double y, ListeCouleurs lc) {
    
-    *message = 1000; 
+    *message = 1000;
+    *message = (int) &(This->lcPrec);
     if ( !((This->xPrec)==x && (This->yPrec)==y && (This->lcPrec).equals(&(This->lcPrec), lc)) ){
         //printf("on entre");
         This->ix = convertX(x);
         
         if ((convertY(y) >= 0) && (convertY(y) < 1000))
-            This->tabPtsY[convertY(y)] = lc->nbrCouleurs;
+            This->tabPtsY[convertY(y)] = lc.nbrCouleurs;
         
         This->xPrec = x;
         This->yPrec = y;
         
-        This->lcPrec = *lc;
+        This->lcPrec = lc;
         
     } 
 }
@@ -93,7 +94,7 @@ int Calcul_egalEpsilonPres(Calcul * This, double x, double y) {
 
 int Calcul_differentEpsilonPres(Calcul * This, double x, double y) {
     *message = 1002;
-    *message = (int) This;
+    //*message = (int) This;
     return (abs(x-y) > (This->epsilonVal));
 }
 
@@ -179,7 +180,10 @@ void Calcul_calcul(Calcul * This) {
                     
                     // calcul des cycles H et V
                     ListeCouleurs lc = New_ListeCouleurs(5);
+                    *message = lc.valeur;
+                    //sleep(2);
                     lc.ajouterCouleur(&lc, 0);
+                    *message = lc.valeur;
                     //printf("On a créé ListeCouleurs\n");
                     
                     /* on ne gère pas panelDessin en C
@@ -190,7 +194,7 @@ void Calcul_calcul(Calcul * This) {
                     else {
                     */
    
-                    Calcul_differerPoint2D(This, This->a, (This->lgN)[This->indiceIterationCourante][j], &lc); // problème
+                    Calcul_differerPoint2D(This, This->a, (This->lgN)[This->indiceIterationCourante][j], lc); // problème
                     
                     for (m=2; m<(This->mMax); m++) {
                         //*message = m;
@@ -201,6 +205,8 @@ void Calcul_calcul(Calcul * This) {
 
                             // c'est un cycle 2 !
 
+                            //* message = 2000;
+
                             // Test cycle vertical
                             if (This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationCourante][m-1]) &&
                                 This->egalEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationPrecedente][m]) &&
@@ -210,6 +216,7 @@ void Calcul_calcul(Calcul * This) {
                                 cycleV = 1;
                             }
                             
+                            //* message = 2001;
                             // test cycle horizontal
                             if (This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationPrecedente][m]) &&
                                 This->egalEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationCourante][m-1]) &&
@@ -218,6 +225,7 @@ void Calcul_calcul(Calcul * This) {
                                 cycleH = 1;
                             }
                             
+                            //* message = 2002;
                             // test cycle diagonal
                             if (This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationPrecedente][m]) &&
                                 This->egalEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationPrecedente][m-1]) &&
@@ -225,7 +233,8 @@ void Calcul_calcul(Calcul * This) {
 
                                 cycleD = 1;
                             }
-      
+
+                            //* message = 2003;      
                             // test cycle Nouv
                             if (indiceIterationAvantPrecedente!=-1 &&
                                 This->differentEpsilonPres(This, (This->lgN)[This->indiceIterationCourante][m], (This->lgN)[This->indiceIterationCourante][m-1]) && // y1#x1
@@ -239,7 +248,8 @@ void Calcul_calcul(Calcul * This) {
   
                                 cycleNouv = 1;
                             }
-                           
+
+                            //* message = 2004;                           
                             if (cycleV) (This->ctrV)++;
                             if (cycleH) (This->ctrH)++;
                             if (cycleD) (This->ctrD)++;
@@ -269,11 +279,12 @@ void ListeCouleurs_ajouterCouleur(ListeCouleurs * This, int noCouleur) {
     This->valeur = (This->valeur) | 1 << noCouleur;
 }
 
-int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs * lc) {
+int ListeCouleurs_equals(ListeCouleurs *This, struct ListeCouleurs lc) {
     *message = 1006;
+    *message = lc.valeur;
     // TODO: à vérifier
     //printf("Equals?\n");
-    return (This->valeur == lc->valeur);
+    return (This->valeur == lc.valeur);
 }
 
 ListeCouleurs New_ListeCouleurs(int nbrCouleurs) {

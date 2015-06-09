@@ -36,7 +36,7 @@
         <delete file="C/e_calcul.elf"/>
         <echo message="Génération de e_calcul.elf"/>
         <exec executable="${E-CC}">
-            <arg line="-O3  -T ${ELDF} C/e_calcul.c -o C/e_calcul.elf -le-lib -lm -ffast-math"/>
+            <arg line="-T ${ELDF} C/e_calcul.c -o C/e_calcul.elf -le-lib -lm -ffast-math"/>
         </exec>
         <echo message="Génération de e_calcul.elf REUSSIE"/>
     </target>

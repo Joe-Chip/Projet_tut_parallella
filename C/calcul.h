@@ -78,7 +78,7 @@ typedef struct Calcul {
     // Méthodes
     int (*differentEpsilonPres)(struct Calcul * This, double x, double y);
     int (*egalEpsilonPres)(struct Calcul * This, double x, double y);
-    void (*differerPoint2D)(struct Calcul * This, double x, double y, ListeCouleurs *lc);
+    void (*differerPoint2D)(struct Calcul * This, double x, double y, ListeCouleurs lc);
     void (*calculM)(struct Calcul * This);
     void (*calcul)(struct Calcul * This);
 

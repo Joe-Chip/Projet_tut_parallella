@@ -17,7 +17,7 @@ typedef struct ListeCouleurs {
 
     // Méthodes (pas la peine de les mettre toutes) !
     void (*ajouterCouleur)(struct ListeCouleurs * This, int nbCouleurs);
-    int (*equals)(struct ListeCouleurs * This, struct ListeCouleurs * lc);
+    int (*equals)(struct ListeCouleurs * This, struct ListeCouleurs lc);
 
 } ListeCouleurs;
 

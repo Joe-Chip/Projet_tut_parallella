@@ -7,6 +7,7 @@
 
 
 e_epiphany_t ** cores;
+e_platform_t platform;
 
 /*
  * Initialisation
@@ -50,14 +51,106 @@ int ouvrir_tous_coeurs_Epiphany(e_epiphany_t * edev, e_platform_t * eplat) {
     return EXIT_SUCCESS;
 }
 
-// Fonction pour ouvrir l'Epiphany
-int open_Epiphany (Calcul * monCalcul) {
+int trouver_coeur_libre(e_platform_t * eplat, e_epiphany_t * edev, int * row, int * column) {
+
+    int coeur_libre = 0;
+    int r = 0;
+    int c = 0;
+    
+    while ((!coeur_libre) && (r < eplat->rows)) {
+        while ((!coeur_libre) && (c < eplat->cols)) {
+            e_read(edev, r, c, FLAG_FINI, &coeur_libre, sizeof(int));
+            c++;
+        }
+        r++;
+    }
+    
+    if (coeur_libre) {
+        *row = r-1;
+        *column = c-1;
+        return 0;
+    } else {
+        return -1;
+    }
+    
+}
+
+void envoyer_donnees_calcul(e_epiphany_t * edev, int row, int column, Calcul * monCalcul) {
+    
     int addr_echelleX = ADRESSE_PANEL;
     int addr_echelleY = addr_echelleX + sizeof(double);
     int addr_deplX = addr_echelleY + sizeof(double);
     int addr_deplY = addr_deplX + sizeof(double);
     int addr_minXVal = addr_deplY + sizeof(double);
     int addr_maxYVal = addr_minXVal + sizeof(double);
+    
+    int flag = -2;
+    int message = -2;
+    
+    e_write(edev, row, column, FLAG_FINI, &flag, sizeof(int));
+    e_write(edev, row, column, ADRESSE_CALCUL, monCalcul, sizeof(Calcul));
+    e_write(edev, row, column, addr_echelleX, &echelleX, sizeof(double)); 
+    e_write(edev, row, column, addr_echelleY, &echelleY, sizeof(double));
+    e_write(edev, row, column, addr_deplX, &deplX, sizeof(double)); 
+    e_write(edev, row, column, addr_deplY, &deplY, sizeof(double)); 
+    e_write(edev, row, column, addr_minXVal, &minXVal, sizeof(double)); 
+    e_write(edev, row, column, addr_maxYVal, &maxYVal, sizeof(double)); 
+    e_write(edev, row, column, MESSAGE, &message, sizeof(int));
+    
+}
+
+int calcul_termine(e_epiphany_t * edev, int row, int column) {
+    
+    int flag = -2;
+    
+    e_read(edev, row, column, FLAG_FINI, &flag, sizeof(int));
+    
+    if (flag == 1)
+        return 1;
+    else
+        return 0;
+}
+    
+// Devrait être un thread
+int lancer_calcul(e_platform_t * eplat, e_epiphany_t * edev, Calcul * monCalcul) {
+
+    int row, column;
+    
+    while (trouver_coeur_libre(eplat, edev, &row, &column) == -1) {
+        // attente active...
+        usleep(10000);
+    }
+    
+    // On a récupéré la ligne et la colonne d'un coeur libre
+    envoyer_donnees_calcul(edev, row, column, monCalcul);
+    
+    // On démarre le programme situé sur le coeur (row, column)
+    if (E_OK != e_start(edev, row, column)) {
+        fprintf(stderr, "Erreur lors du lancement du programme sur le coeur (%d,%d)\n", row, column);
+        return EXIT_FAILURE;
+    }
+    
+
+    int message = 42;
+    int flag = 42;
+    while(!calcul_termine(edev, row, column)) {
+        // attente active...
+        e_read(edev, 0, 0, MESSAGE, &message, sizeof(int));
+        e_read(edev, 0, 0, FLAG_FINI, &flag, sizeof(int));
+        printf("[%d,%d] message = 0x%x (%d)\n", row, column, message, message);
+        printf("[%d,%d] flag = 0x%x (%d)\n", row, column, flag, flag);
+        usleep(10000);
+        sleep(1);
+    }
+        
+    e_read(&edev, 0, 0, ADRESSE_CALCUL, monCalcul, sizeof(Calcul));
+    
+    return EXIT_SUCCESS;
+    
+}
+
+// Un calcul pour l'instant
+int open_Epiphany (Calcul * monCalcul) {
     
     e_epiphany_t edev;
     e_platform_t eplat;
@@ -66,57 +159,16 @@ int open_Epiphany (Calcul * monCalcul) {
     
     ouvrir_tous_coeurs_Epiphany(&edev, &eplat);
 
-    if (E_OK != e_load("C/e_calcul.srec", &edev, 0, 0, E_FALSE)) {
+    // On charge le programme sur tous les coeurs
+    if (E_OK != e_load_group("C/e_calcul.srec", &edev, 0, 0, eplat.rows, eplat.cols, E_FALSE)) {
         fprintf(stderr, "Erreur chargement coeur\n");
         return EXIT_FAILURE;
     }
     
     usleep(10000);
-    printf("valInit[0] = %lf\n", monCalcul->valInit[0]);
     
-    
-    /*
-     * Envoi données calcul
-     */
-    int flag = -2;
-    int message = -2;
-    e_write(&edev, 0, 0, FLAG_FINI, &flag, sizeof(int));
-    e_write(&edev, 0, 0, ADRESSE_CALCUL, monCalcul, sizeof(Calcul));
-    e_write(&edev, 0, 0, addr_echelleX, &echelleX, sizeof(double)); 
-    e_write(&edev, 0, 0, addr_echelleY, &echelleY, sizeof(double));
-    e_write(&edev, 0, 0, addr_deplX, &deplX, sizeof(double)); 
-    e_write(&edev, 0, 0, addr_deplY, &deplY, sizeof(double)); 
-    e_write(&edev, 0, 0, addr_minXVal, &minXVal, sizeof(double)); 
-    e_write(&edev, 0, 0, addr_maxYVal, &maxYVal, sizeof(double)); 
-    e_write(&edev, 0, 0, MESSAGE, &message, sizeof(int));
-
-    /*
-     * Lancement programme + réception résultat
-     */
-
-    if (E_OK != e_start_group(&edev)) {
-        fprintf(stderr, "Erreur de lancement du groupe\n");
-        return EXIT_FAILURE;
-    }
-    usleep(10000);
-    printf("On a lancé le groupe\n");
-    
-    while(flag != 1) {
-        printf("Programme en cours, veuillez patienter\n");
-        printf("flag = %d\n", flag);
-        printf("message = 0x%x (%d)\n", message, message);
-        sleep(1);
-        e_read(&edev, 0, 0, FLAG_FINI, &flag, sizeof(int));
-        e_read(&edev, 0, 0, MESSAGE, &message, sizeof(int));
-    }
-    
-    printf("C'est bon !\n");
-    e_read(&edev, 0, 0, ADRESSE_CALCUL, monCalcul, sizeof(Calcul));
-    e_read(&edev, 0, 0, FLAG_FINI, &flag, sizeof(int));
-    printf("flag = %d\n", flag);
-    e_read(&edev, 0, 0, MESSAGE, &message, sizeof(int));
-    printf("message = %x\n", message);
-
+    // On lance le programme sur un coeur seulement pour l'instant
+    lancer_calcul(&eplat, &edev, monCalcul);
 
     /*
      * Fermeture coeurs
@@ -167,12 +219,13 @@ Calcul Calcul_creer(double * valInit, double a, double b, double epsilonVal,
 
 // Fonctions visibles par JNI ///////////////////////////////////////
 
+// Pas encore utilisée
 JNIEXPORT jint JNICALL Java_balayageK2_Interface_einit
     (JNIEnv * env, jclass thisClass) {
-
+    
     init_Epiphany();
     
-    if (E_OK != e_get_platform_info(eplat)) {
+    if (E_OK != e_get_platform_info(&platform)) {
         fprintf(stderr, "Problème lors de la récupération des informations sur la plate-forme\n");
         return (jint) EXIT_FAILURE;
     }
@@ -188,6 +241,7 @@ JNIEXPORT jint JNICALL Java_balayageK2_Interface_einit
     return (jint) EXIT_SUCCESS;
 }
 
+// Pas encore utilisée
 JNIEXPORT void JNICALL Java_balayageK2_Interface_eclose
     (JNIEnv * env, jclass thisClass) {
     
